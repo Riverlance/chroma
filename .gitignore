@@ -1,0 +1,20 @@
+# VS code user-specific files
+*.suo
+*.user
+*.sln.docstates
+.vs/
+.vscode/
+
+# VS code extensions
+.favorites.json
+
+# Python
+*.pyc
+__pycache__/
+
+# Data
+*.json
+data/
+
+# Databases
+db/
