@@ -59,8 +59,7 @@ class RagHandler:
         docs = self.__parse_object(obj)
 
         # Deliver these documents to the caller (generator)
-        for doc in docs:
-          yield doc
+        yield docs
 
         parsed_amount += 1
 
@@ -71,6 +70,28 @@ class RagHandler:
         # Stop if limit is reached
         if limit and parsed_amount >= limit:
           break
+
+  def print_json_file_data(self, *a, **k):
+    '''
+    Parse a JSON file and print its data.
+
+    Args:
+      *a (tuple): Positional arguments.
+      **k (dict): Keyword arguments.
+    '''
+
+    docs_i = 0
+    for docs in rag.parse_json_file(*a, **k):
+      docs_i += 1
+      doc_i   = 0
+
+      print(f">> Found new document #{docs_i}")
+
+      for doc in docs:
+        doc_i += 1
+        print(f"> Document #{doc_i}\n{doc}\n")
+
+      print('-' * 10 + '\n')
 
   def __parse_object(self, obj: dict) -> tuple:
     '''
@@ -303,11 +324,8 @@ if __name__ == "__main__":
   # Get info about a JSON file
   # print(rag.get_json_file_info(json_filepath="../data/db.json"))
 
-  # Parse a JSON file
-  gen = rag.parse_json_file(json_filepath="../data/db.json", limit=10)
-  for doc in gen:
-    print(f">> Found new document for {doc.get('COD_CCN_PUBLICACAO')}")
-    print(doc)
+  # Parse a JSON file in streaming mode (see print_json_file_data)
+  rag.print_json_file_data(json_filepath="../data/db.json", limit=10)
 
   # Init search in terminal mode
   # rag.init_search_terminal_mode(n_results=10)
