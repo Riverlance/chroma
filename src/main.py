@@ -48,13 +48,11 @@ class RagHandler:
       # Parse streaming
       '''
       json format example:
-      {
-        "KEY_NAME": [
-          { ... }, # Item 1
-          { ... }, # Item 2
-          { ... }  # Item 3
-        ]
-      }
+      [
+        { ... }, # Item 1
+        { ... }, # Item 2
+        { ... }  # Item 3
+      ]
       '''
       file.seek(0)
       for obj in ijson.items(file, prefix = 'item'):
@@ -136,7 +134,7 @@ class RagHandler:
 
   # region MARK: ChromaDB
 
-  def create_client(self, path: str = "vectordb"):
+  def create_client(self, path: str = 'vectordb'):
     '''
     Creates a ChromaDB client.
 
@@ -147,7 +145,7 @@ class RagHandler:
     # Create a ChromaDB persistent client
     self.client = chromadb.PersistentClient(path = path)
 
-  def create_collection(self, name: str = "data"):
+  def create_collection(self, name: str = 'data'):
     '''
     Creates a ChromaDB collection.
 
