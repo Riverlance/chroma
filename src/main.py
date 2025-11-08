@@ -115,8 +115,8 @@ class RagHandler:
         metadata       = data[0]
         docs           = data[1:]
 
-        # Deliver metadata and documents to the caller (generator)
-        yield metadata, docs
+        # Deliver id, metadata and documents to the caller (generator)
+        yield obj['id'], metadata, docs
 
         # Display progress
         if parsed_amount % 1000 == 0:
@@ -153,12 +153,10 @@ class RagHandler:
       **k (dict): Keyword arguments.
     '''
 
-    docs_i = 0
-    for metadata, docs in rag.__parse_json_file(*a, **k):
-      docs_i += 1
-      doc_i   = 0
+    for id, metadata, docs in rag.__parse_json_file(*a, **k):
+      doc_i = 0
 
-      print(f">> Found new document #{docs_i}")
+      print(f">> Found new document #{id}")
 
       print(f"> Metadata:\n{metadata}\n")
 
