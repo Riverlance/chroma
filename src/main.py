@@ -26,6 +26,7 @@ class RagHandler:
   def __init__(self):
     self.client     = None
     self.collection = None
+
     self.clear_data()
 
 
@@ -209,8 +210,6 @@ class RagHandler:
 
 
 
-
-
   # region MARK: ChromaDB
 
   # region MARK: VectorDB
@@ -225,6 +224,9 @@ class RagHandler:
 
     # Create a ChromaDB persistent client
     self.client = chromadb.PersistentClient(path = path)
+
+    # Display a success message
+    print(f">> ChromaDB client has been created successfully at '{path}'")
 
   def create_collection(self, name: str = 'data'):
     '''
