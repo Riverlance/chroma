@@ -2,6 +2,15 @@
 Copyright (c) 2025 Ibict Authors. All rights reserved.
 '''
 
+
+
+'''
+To load parameters from .env, add the following content to the bottom of your `venv/bin/activate` (`nano venv/bin/activate`):
+if [ -f ".env" ]; then
+  export $(grep -v '^#' .env | xargs)
+fi
+'''
+
 import chromadb
 import ijson
 import time
