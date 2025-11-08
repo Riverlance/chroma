@@ -26,16 +26,11 @@ class RagHandler:
   def __init__(self):
     self.client     = None
     self.collection = None
-    self.__clear_lists()
+    self.clear_data()
 
 
 
   # region MARK: JSON parsing
-
-  def __clear_lists(self):
-    self.ids       = []
-    self.metadatas = []
-    self.documents = []
 
   def __parse_object(self, obj: dict) -> tuple:
     '''
@@ -105,7 +100,7 @@ class RagHandler:
     '''
 
     # Clear lists
-    self.__clear_lists()
+    self.clear_data()
 
     parsed_amount = 0
     info          = self.get_json_file_info(json_filepath)
@@ -140,6 +135,20 @@ class RagHandler:
         # Stop if limit is reached
         if limit and parsed_amount >= limit:
           break
+
+  def clear_data(self):
+    '''
+    Clear stored data.
+    '''
+
+    # Clear data without deleting the collection
+    if self.collection:
+      self.collection.delete(where = { })
+
+    # Clear internal lists
+    self.ids       = []
+    self.metadatas = []
+    self.documents = []
 
   def load(self, *a, **k):
     '''
