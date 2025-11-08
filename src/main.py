@@ -205,6 +205,19 @@ class RagHandler:
     # Display the number of objects in the collection
     print(f">> {self.collection.count()} objects found in the collection.")
 
+  def clear_collections(self):
+    '''
+    Clear all collections in the ChromaDB database.
+    '''
+
+    assert self.client, "Client is not created yet. Call create_client(...) first."
+
+    for collection in self.client.list_collections():
+      try:
+        self.client.delete_collection(name = collection.name)
+      except:
+        pass
+
   # endregion
 
 
