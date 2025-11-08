@@ -14,21 +14,6 @@ from pathlib import Path
 class RagHandler:
   # region MARK: JSON parsing
 
-  def get_json_file_info(self, json_filepath: str):
-    '''
-    Get information about a JSON file.
-
-    Args:
-      json_filepath (str): The path to the JSON file.
-
-    Returns:
-      tuple: A tuple containing the file name and its size in megabytes.
-    '''
-
-    path    = Path(json_filepath)
-    mb_size = round(path.stat().st_size / (1024 ** 2), 2)
-    return path, mb_size
-
   def __parse_object(self, obj: dict) -> tuple:
     '''
     Parse a single object from a JSON file.
@@ -129,6 +114,24 @@ class RagHandler:
         # Stop if limit is reached
         if limit and parsed_amount >= limit:
           break
+
+  def create_vectordb():
+    pass
+
+  def get_json_file_info(self, json_filepath: str):
+    '''
+    Get information about a JSON file.
+
+    Args:
+      json_filepath (str): The path to the JSON file.
+
+    Returns:
+      tuple: A tuple containing the file name and its size in megabytes.
+    '''
+
+    path    = Path(json_filepath)
+    mb_size = round(path.stat().st_size / (1024 ** 2), 2)
+    return path, mb_size
 
   def print_json_file_data(self, *a, **k):
     '''
