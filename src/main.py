@@ -153,10 +153,10 @@ class RagHandler:
 
     for id, metadatas, docs in rag.__parse_json_file(*a, **k):
       # Store ids, metadata and documents
-      for _ in range(len(docs)):
+      for doc in docs:
         self.ids.append(id)
         self.metadatas.append(metadatas)
-      self.documents.extend(docs)
+        self.documents.append(doc)
 
   def get_json_file_info(self, json_filepath: str):
     '''
@@ -176,6 +176,7 @@ class RagHandler:
   def print_json_file_data(self, *a, **k):
     '''
     Parse a JSON file and print its data.
+    Same parameters as __parse_json_file.
 
     Args:
       *a (tuple): Positional arguments.
@@ -210,7 +211,7 @@ class RagHandler:
     Creates a ChromaDB client.
 
     Args:
-      path (str, optional): The path to the ChromaDB database.
+      path (str, optional): The path to the VectorDB database.
     '''
 
     # Create a ChromaDB persistent client
