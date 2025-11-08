@@ -16,6 +16,8 @@ import ijson
 import time
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).parent.parent
+
 
 
 
@@ -351,10 +353,10 @@ if __name__ == "__main__":
   rag = RagHandler()
 
   # Get info about a JSON file
-  # print(rag.get_json_file_info(json_filepath="../data/db.json"))
+  # print(rag.get_json_file_info(json_filepath=f"{PROJECT_ROOT}/data/db.json"))
 
   # Parse a JSON file in streaming mode (see print_json_file_data)
-  rag.print_json_file_data(json_filepath="../data/db.json", limit=10)
+  rag.print_json_file_data(json_filepath=f"{PROJECT_ROOT}/data/db.json", limit=10)
 
   # Init search in terminal mode
   # rag.init_search_terminal_mode(n_results=10)
