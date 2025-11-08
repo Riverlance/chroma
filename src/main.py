@@ -86,7 +86,7 @@ class RagHandler:
 
     return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
 
-  def parse_json_file(self, json_filepath: str, limit: int = None):
+  def __parse_json_file(self, json_filepath: str, limit: int = None):
     '''
     Parse a JSON file in streaming mode (reads without loading entire file into memory).
     It also yields (produces) documents to the generator.
@@ -140,7 +140,7 @@ class RagHandler:
     '''
 
     docs_i = 0
-    for metadata, docs in rag.parse_json_file(*a, **k):
+    for metadata, docs in rag.__parse_json_file(*a, **k):
       docs_i += 1
       doc_i   = 0
 
