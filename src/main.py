@@ -22,7 +22,18 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 
 
+RAG_ERROR              = 0
+RAG_ERROR_NOCLIENT     = 1
+RAG_ERROR_NOCOLLECTION = 2
+
 class RagHandler:
+  # Error messages
+  __ERROR_MESSAGES = {
+    RAG_ERROR              : "Sorry, not possible.",
+    RAG_ERROR_NOCLIENT     : "Client is not created yet. Call create_client(...) first.",
+    RAG_ERROR_NOCOLLECTION : "Collection is not created yet. Call create_collection(...) first.",
+  }
+
   def __init__(self):
     self.client     = None
     self.collection = None
@@ -226,7 +237,7 @@ class RagHandler:
       embedding_function (object, optional): The embedding function to use.
     '''
 
-    assert self.client, "Client is not created yet. Call create_client(...) first."
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
     # Delete all collections
     self.delete_collection()
@@ -242,7 +253,7 @@ class RagHandler:
     Delete a ChromaDB collection.
     '''
 
-    assert self.client, "Client is not created yet. Call create_client(...) first."
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
     for collection in self.client.list_collections():
       try:
@@ -255,7 +266,7 @@ class RagHandler:
     Clear collection in the ChromaDB database.
     '''
 
-    assert self.collection, "Collection is not created yet. Call create_collection(...) first."
+    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
     # Clear data without deleting the collection
     self.collection.delete(where = { })
@@ -276,7 +287,7 @@ class RagHandler:
       n_results (int, optional): The number of results to return.
     '''
 
-    assert self.collection, "Collection is not created yet. Call create_collection(...) first."
+    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
     print(f"\n>> Requested query: \"{query_text}\"\n\n")
 
@@ -350,6 +361,20 @@ class RagHandler:
     self.ids       = []
     self.metadatas = []
     self.documents = []
+
+  @staticmethod
+  def error(id):
+    '''
+    Get error message.
+
+    Args:
+      id (int): Error id.
+
+    Returns:
+      str: Error message.
+    '''
+
+    return RagHandler.__ERROR_MESSAGES[id]
 
   # endregion
 
