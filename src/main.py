@@ -3,9 +3,9 @@ Copyright (c) 2025 Ibict Authors. All rights reserved.
 '''
 
 import chromadb
-
 import ijson
-from pathlib import Path # Path manipulation
+import time
+from pathlib import Path
 
 
 
@@ -28,6 +28,62 @@ class RagHandler:
     path    = Path(json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
     return path, mb_size
+
+  def __parse_object(self, obj: dict) -> tuple:
+    '''
+    Parse a single object from a JSON file.
+
+    Args:
+      obj (dict): A single object from a JSON file.
+
+    Returns:
+      tuple: A tuple of documents.
+    '''
+
+    # Note:
+    # The `ijson` parser returns None when the field is missing.
+    # That's why I've used, for example, `obj['INSTITUICAO'] or ''`, instead of `obj.get('INSTITUICAO', '')`.
+    instituicao          = obj['INSTITUICAO'] or ''
+    biblioteca           = obj['BIBLIOTECA_NOME'] or ''
+    editora              = obj['NOME_EDITORA'] or ''
+    area_conhecimento    = obj['AREA_CONHECIMENTO'] or ''
+    assuntos_controlados = obj['SPINES'] or ''
+    termo_livre          = obj['TERMO_LIVRE'] or ''
+
+    # Metadatas
+    metadatas = {
+      'COD_CCN_PUBLICACAO': obj['COD_CCN_PUBLICACAO'] or '',
+      'INSTITUICAO':        instituicao,
+      'BIBLIOTECA_NOME':    biblioteca,
+      'NOME_EDITORA':       editora,
+      'AREA_CONHECIMENTO':  area_conhecimento,
+      'SPINES':             assuntos_controlados,
+      'TERMO_LIVRE':        termo_livre,
+    }
+
+    # 5 documents per object
+    doc_1 = dict(metadatas) # Copy metadatas
+    doc_2 = dict(metadatas) # Copy metadatas
+    doc_3 = dict(metadatas) # Copy metadatas
+    doc_4 = dict(metadatas) # Copy metadatas
+    doc_5 = dict(metadatas) # Copy metadatas
+
+    # Document - 'TITULO_PUBLICACAO'
+    doc_1['TITULO_PUBLICACAO'] = obj['TITULO_PUBLICACAO'] or ''
+
+    # Document - 'TITULO_RELACIONADO'
+    doc_2['TITULO_RELACIONADO'] = obj['TITULO_RELACIONADO'] or ''
+
+    # Document - 'COLECAO'
+    doc_3['COLECAO'] = obj['COLECAO'] or ''
+
+    # Document - 'COMENTARIO'
+    doc_4['COMENTARIO'] = obj['COMENTARIO'] or ''
+
+    # Document - 'CONTEXT' (extra to join the metadata as a single string, keeping also the metadata structure)
+    doc_5['CONTEXT'] = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
+
+    return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
 
   def parse_json_file(self, json_filepath: str, limit: int = None):
     '''
@@ -96,62 +152,6 @@ class RagHandler:
         print(f"> Document #{doc_i}\n{doc}\n")
 
       print('-' * 10 + '\n')
-
-  def __parse_object(self, obj: dict) -> tuple:
-    '''
-    Parse a single object from a JSON file.
-
-    Args:
-      obj (dict): A single object from a JSON file.
-
-    Returns:
-      tuple: A tuple of documents.
-    '''
-
-    # Note:
-    # The `ijson` parser returns None when the field is missing.
-    # That's why I've used, for example, `obj['INSTITUICAO'] or ''`, instead of `obj.get('INSTITUICAO', '')`.
-    instituicao          = obj['INSTITUICAO'] or ''
-    biblioteca           = obj['BIBLIOTECA_NOME'] or ''
-    editora              = obj['NOME_EDITORA'] or ''
-    area_conhecimento    = obj['AREA_CONHECIMENTO'] or ''
-    assuntos_controlados = obj['SPINES'] or ''
-    termo_livre          = obj['TERMO_LIVRE'] or ''
-
-    # Metadatas
-    metadatas = {
-      'COD_CCN_PUBLICACAO': obj['COD_CCN_PUBLICACAO'] or '',
-      'INSTITUICAO':        instituicao,
-      'BIBLIOTECA_NOME':    biblioteca,
-      'NOME_EDITORA':       editora,
-      'AREA_CONHECIMENTO':  area_conhecimento,
-      'SPINES':             assuntos_controlados,
-      'TERMO_LIVRE':        termo_livre,
-    }
-
-    # 5 documents per object
-    doc_1 = dict(metadatas) # Copy metadatas
-    doc_2 = dict(metadatas) # Copy metadatas
-    doc_3 = dict(metadatas) # Copy metadatas
-    doc_4 = dict(metadatas) # Copy metadatas
-    doc_5 = dict(metadatas) # Copy metadatas
-
-    # Document - 'TITULO_PUBLICACAO'
-    doc_1['TITULO_PUBLICACAO'] = obj['TITULO_PUBLICACAO'] or ''
-
-    # Document - 'TITULO_RELACIONADO'
-    doc_2['TITULO_RELACIONADO'] = obj['TITULO_RELACIONADO'] or ''
-
-    # Document - 'COLECAO'
-    doc_3['COLECAO'] = obj['COLECAO'] or ''
-
-    # Document - 'COMENTARIO'
-    doc_4['COMENTARIO'] = obj['COMENTARIO'] or ''
-
-    # Document - 'CONTEXT' (extra to join the metadata as a single string, keeping also the metadata structure)
-    doc_5['CONTEXT'] = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
-
-    return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
 
   # endregion
 
