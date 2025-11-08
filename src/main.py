@@ -56,10 +56,12 @@ class RagHandler:
       '''
       file.seek(0)
       for obj in ijson.items(file, prefix = 'item'):
-        docs = self.__parse_object(obj)
+        data = self.__parse_object(obj)
+        metadata = data[0]
+        docs     = data[1:]
 
-        # Deliver these documents to the caller (generator)
-        yield docs
+        # Deliver metadata and documents to the caller (generator)
+        yield metadata, docs
 
         parsed_amount += 1
 
@@ -81,11 +83,13 @@ class RagHandler:
     '''
 
     docs_i = 0
-    for docs in rag.parse_json_file(*a, **k):
+    for metadata, docs in rag.parse_json_file(*a, **k):
       docs_i += 1
       doc_i   = 0
 
       print(f">> Found new document #{docs_i}")
+
+      print(f"> Metadata:\n{metadata}\n")
 
       for doc in docs:
         doc_i += 1
@@ -147,7 +151,7 @@ class RagHandler:
     # Document - 'CONTEXT' (extra to join the metadata as a single string, keeping also the metadata structure)
     doc_5['CONTEXT'] = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
 
-    return doc_1, doc_2, doc_3, doc_4, doc_5
+    return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
 
   # endregion
 
