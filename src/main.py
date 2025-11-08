@@ -170,7 +170,11 @@ class RagHandler:
 
 
 
+
+
   # region MARK: ChromaDB
+
+  # region MARK: VectorDB
 
   def create_client(self, path: str = 'vectordb'):
     '''
@@ -198,6 +202,12 @@ class RagHandler:
 
     # Display the number of objects in the collection
     print(f">> {self.collection.count()} objects found in the collection.")
+
+  # endregion
+
+
+
+  # region MARK: Search
 
   def search(self, query_text: str, n_results: int = 10):
     '''
@@ -261,6 +271,8 @@ class RagHandler:
         self.search(query_text = query, n_results = n_results)
       else:
         print(">> Type a valid question.")
+
+  # endregion
 
   # endregion
 
