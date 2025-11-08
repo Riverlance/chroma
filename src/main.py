@@ -23,7 +23,19 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 
 class RagHandler:
+  def __init__(self):
+    self.client     = None
+    self.collection = None
+    self.__clear_lists()
+
+
+
   # region MARK: JSON parsing
+
+  def __clear_lists(self):
+    self.ids       = []
+    self.metadatas = []
+    self.documents = []
 
   def __parse_object(self, obj: dict) -> tuple:
     '''
@@ -92,6 +104,9 @@ class RagHandler:
       limit (int, optional): The maximum number of objects to parse.
     '''
 
+    # Clear lists
+    self.__clear_lists()
+
     parsed_amount = 0
     info          = self.get_json_file_info(json_filepath)
 
@@ -126,8 +141,22 @@ class RagHandler:
         if limit and parsed_amount >= limit:
           break
 
-  def create_vectordb():
-    pass
+  def load(self, *a, **k):
+    '''
+    Parse a JSON file and store its data in internal lists.
+    Same parameters as __parse_json_file.
+
+    Args:
+      *a (tuple): Positional arguments.
+      **k (dict): Keyword arguments.
+    '''
+
+    for id, metadatas, docs in rag.__parse_json_file(*a, **k):
+      # Store ids, metadata and documents
+      for _ in range(len(docs)):
+        self.ids.append(id)
+        self.metadatas.append(metadatas)
+      self.documents.extend(docs)
 
   def get_json_file_info(self, json_filepath: str):
     '''
