@@ -42,7 +42,7 @@ class RagHandler:
       obj (dict): A single object from a JSON file.
 
     Returns:
-      tuple: A tuple of documents.
+      tuple: A tuple of metadatas and documents.
     '''
 
     # Note:
@@ -105,9 +105,9 @@ class RagHandler:
     self.clear_data()
 
     parsed_amount = 0
-    info          = self.get_json_file_info(json_filepath)
+    json_info     = self.get_json_file_info(json_filepath)
 
-    print(f">> Starting to parse '{info[0].name}' ({info[1]:.2f} MB)")
+    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)")
 
     with open(json_filepath, 'rb') as file:
       # Parse streaming
@@ -163,11 +163,13 @@ class RagHandler:
       json_filepath (str): The path to the JSON file.
 
     Returns:
-      tuple: A tuple containing the file name and its size in megabytes.
+      path (Path): The path to the JSON file.
+      mb_size (float): The size of the JSON file in megabytes.
     '''
 
     path    = Path(json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
+
     return path, mb_size
 
   def print_json_file_data(self, *a, **k):
@@ -203,7 +205,7 @@ class RagHandler:
 
   def create_client(self, path: str = 'vectordb'):
     '''
-    Creates a ChromaDB client.
+    Create a ChromaDB client.
 
     Args:
       path (str, optional): The path to the VectorDB database.
@@ -217,10 +219,11 @@ class RagHandler:
 
   def create_collection(self, name: str = 'data'):
     '''
-    Creates a ChromaDB collection.
+    Create a ChromaDB collection.
 
     Args:
       name (str, optional): The name of the collection.
+      embedding_function (object, optional): The embedding function to use.
     '''
 
     assert self.client, "Client is not created yet. Call create_client(...) first."
@@ -236,7 +239,7 @@ class RagHandler:
 
   def delete_collection(self):
     '''
-    Deletes a ChromaDB collection.
+    Delete a ChromaDB collection.
     '''
 
     assert self.client, "Client is not created yet. Call create_client(...) first."
