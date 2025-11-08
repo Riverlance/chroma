@@ -52,6 +52,7 @@ class RagHandler:
 
     # Metadatas
     metadatas = {
+      'id':                 obj['id'] or '',
       'COD_CCN_PUBLICACAO': obj['COD_CCN_PUBLICACAO'] or '',
       'INSTITUICAO':        instituicao,
       'BIBLIOTECA_NOME':    biblioteca,
@@ -112,14 +113,14 @@ class RagHandler:
       '''
       file.seek(0)
       for obj in ijson.items(file, prefix = 'item'):
-        data = self.__parse_object(obj)
-        metadata = data[0]
-        docs     = data[1:]
+        parsed_amount += 1
+        obj['id']      = str(parsed_amount) # Unique id for the group of documents
+        data           = self.__parse_object(obj)
+        metadata       = data[0]
+        docs           = data[1:]
 
         # Deliver metadata and documents to the caller (generator)
         yield metadata, docs
-
-        parsed_amount += 1
 
         # Display progress
         if parsed_amount % 1000 == 0:
