@@ -27,6 +27,7 @@ class RagHandler:
     self.client     = None
     self.collection = None
 
+    # Clear data
     self.clear_data()
 
 
@@ -100,7 +101,7 @@ class RagHandler:
       limit (int, optional): The maximum number of objects to parse.
     '''
 
-    # Clear lists
+    # Clear data
     self.clear_data()
 
     parsed_amount = 0
@@ -136,20 +137,6 @@ class RagHandler:
         # Stop if limit is reached
         if limit and parsed_amount >= limit:
           break
-
-  def clear_data(self):
-    '''
-    Clear stored data.
-    '''
-
-    # Clear data without deleting the collection
-    if self.collection:
-      self.collection.delete(where = { })
-
-    # Clear internal lists
-    self.ids       = []
-    self.metadatas = []
-    self.documents = []
 
   def load(self, *a, **k):
     '''
@@ -238,15 +225,18 @@ class RagHandler:
 
     assert self.client, "Client is not created yet. Call create_client(...) first."
 
+    # Delete all collections
+    self.delete_collection()
+
     # Create a collection
     self.collection = self.client.create_collection(name = name)
 
     # Display the number of objects in the collection
     print(f">> {self.collection.count()} objects found in the collection.")
 
-  def clear_collections(self):
+  def delete_collection(self):
     '''
-    Clear all collections in the ChromaDB database.
+    Deletes a ChromaDB collection.
     '''
 
     assert self.client, "Client is not created yet. Call create_client(...) first."
@@ -256,6 +246,16 @@ class RagHandler:
         self.client.delete_collection(name = collection.name)
       except:
         pass
+
+  def clear_collection(self):
+    '''
+    Clear collection in the ChromaDB database.
+    '''
+
+    assert self.collection, "Collection is not created yet. Call create_collection(...) first."
+
+    # Clear data without deleting the collection
+    self.collection.delete(where = { })
 
   # endregion
 
@@ -327,6 +327,26 @@ class RagHandler:
         print(">> Type a valid question.")
 
   # endregion
+
+  # endregion
+
+
+
+  # region MARK: Self
+
+  def clear_data(self):
+    '''
+    Clear stored data.
+    '''
+
+    # Clear collection, if it exists
+    if self.collection:
+      self.clear_collection()
+
+    # Clear internal lists
+    self.ids       = []
+    self.metadatas = []
+    self.documents = []
 
   # endregion
 
