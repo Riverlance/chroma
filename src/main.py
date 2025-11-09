@@ -308,10 +308,8 @@ class RagHandler:
     Clear the Chroma collection.
     '''
 
-    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
-
-    # Clear data without deleting the collection
-    self.collection.delete(where = { })
+    self.delete_collection()
+    self.create_collection()
 
   # endregion
 
