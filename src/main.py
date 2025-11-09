@@ -22,21 +22,33 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 
 
-RAG_ERROR              = 0
-RAG_ERROR_NOCLIENT     = 1
-RAG_ERROR_NOCOLLECTION = 2
+RAG_ERROR                = 0
+RAG_ERROR_NOJSONFILEPATH = 1
+RAG_ERROR_NOCLIENT       = 1
+RAG_ERROR_NOCOLLECTION   = 2
 
 class RagHandler:
   # Error messages
   __ERROR_MESSAGES = {
-    RAG_ERROR              : "Sorry, not possible.",
-    RAG_ERROR_NOCLIENT     : "Client is not created yet. Call create_client(...) first.",
-    RAG_ERROR_NOCOLLECTION : "Collection is not created yet. Call create_collection(...) first.",
+    RAG_ERROR               : "Sorry, not possible.",
+    RAG_ERROR_NOJSONFILEPATH: "JSON file path is not provided.",
+    RAG_ERROR_NOCLIENT      : "Client is not created yet. Call create_client(...) first.",
+    RAG_ERROR_NOCOLLECTION  : "Collection is not created yet. Call create_collection(...) first.",
   }
 
-  def __init__(self):
-    self.client     = None
-    self.collection = None
+  def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
+    self.json_filepath      = json_filepath
+    self.client_path        = client_path
+    self.collection_name    = collection_name
+    self.embedding_function = embedding_function
+    self.client             = None
+    self.collection         = None
+
+    if client_path:
+      self.create_client(path = client_path)
+
+    if collection_name:
+      self.create_collection(name = collection_name, embedding_function = embedding_function)
 
     # Clear data
     self.clear_data()
@@ -102,25 +114,26 @@ class RagHandler:
 
     return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
 
-  def __parse_json_file(self, json_filepath: str, limit: int = None):
+  def __parse_json_file(self, limit: int = None):
     '''
     Parse a JSON file in streaming mode (reads without loading entire file into memory).
     It also yields (produces) documents to the generator.
 
     Args:
-      json_filepath (str): The path to the JSON file.
       limit (int, optional): The maximum number of objects to parse.
     '''
+
+    assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     # Clear data
     self.clear_data()
 
     parsed_amount = 0
-    json_info     = self.get_json_file_info(json_filepath)
+    json_info     = self.get_json_file_info()
 
     print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)")
 
-    with open(json_filepath, 'rb') as file:
+    with open(self.json_filepath, 'rb') as file:
       # Parse streaming
       '''
       json format example:
@@ -166,19 +179,18 @@ class RagHandler:
         self.metadatas.append(metadatas)
         self.documents.append(doc)
 
-  def get_json_file_info(self, json_filepath: str):
+  def get_json_file_info(self):
     '''
     Get information about a JSON file.
-
-    Args:
-      json_filepath (str): The path to the JSON file.
 
     Returns:
       path (Path): The path to the JSON file.
       mb_size (float): The size of the JSON file in megabytes.
     '''
 
-    path    = Path(json_filepath)
+    assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+
+    path    = Path(self.json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
 
     return path, mb_size
@@ -295,16 +307,16 @@ class RagHandler:
     results = self.collection.query(query_texts = [query_text], n_results = n_results)
 
     # Get the metadatas and documents
-    documents = results['documents'][0]
     metadatas = results['metadatas'][0]
+    documents = results['documents'][0]
 
     # Display the results
 
     # Found results
-    if documents:
+    if metadatas and documents:
       print(f">> Found {len(documents)} relevant results:\n")
 
-      for i, (document, metadata) in enumerate(zip(documents, metadatas), 1):
+      for i, (metadata, document) in enumerate(zip(metadatas, documents), 1):
         print(f"{i}")
 
         # todo - print data
@@ -450,13 +462,13 @@ def testChromaClient():
 if __name__ == "__main__":
   # testChromaClient()
 
-  rag = RagHandler()
+  rag = RagHandler(json_filepath = f"{PROJECT_ROOT}/data/db.json")
 
   # Get info about a JSON file
-  # print(rag.get_json_file_info(json_filepath=f"{PROJECT_ROOT}/data/db.json"))
+  # print(rag.get_json_file_info())
 
   # Parse a JSON file in streaming mode (see print_json_file_data)
-  rag.print_json_file_data(json_filepath=f"{PROJECT_ROOT}/data/db.json", limit=10)
+  # rag.print_json_file_data(limit=10)
 
   # Init search in terminal mode
   # rag.init_search_terminal_mode(n_results=10)
