@@ -182,7 +182,7 @@ class RagHandler:
         metadatas       = data[0]
         docs            = data[1:]
         docs_amount     = len(docs)
-        unique_ids      = list(range((parsed_amount - 1) * docs_amount + 1, parsed_amount * docs_amount + 1))
+        unique_ids      = [str(i) for i in range((parsed_amount - 1) * docs_amount + 1, parsed_amount * docs_amount + 1)]
 
         # Deliver id, metadatas and documents to the caller (generator)
         yield unique_ids, metadatas, docs
