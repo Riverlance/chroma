@@ -128,26 +128,16 @@ class RagHandler:
     }
 
     # 5 documents per object
-    doc_1 = dict(metadatas) # Copy metadatas
-    doc_2 = dict(metadatas) # Copy metadatas
-    doc_3 = dict(metadatas) # Copy metadatas
-    doc_4 = dict(metadatas) # Copy metadatas
-    doc_5 = dict(metadatas) # Copy metadatas
-
-    # Document - 'TITULO_PUBLICACAO'
-    doc_1['TITULO_PUBLICACAO'] = obj['TITULO_PUBLICACAO'] or ''
-
-    # Document - 'TITULO_RELACIONADO'
-    doc_2['TITULO_RELACIONADO'] = obj['TITULO_RELACIONADO'] or ''
-
-    # Document - 'COLECAO'
-    doc_3['COLECAO'] = obj['COLECAO'] or ''
-
-    # Document - 'COMENTARIO'
-    doc_4['COMENTARIO'] = obj['COMENTARIO'] or ''
-
-    # Document - 'CONTEXT' (extra to join the metadata as a single string, keeping also the metadata structure)
-    doc_5['CONTEXT'] = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
+    # Document #1 - 'TITULO_PUBLICACAO'
+    doc_1 = obj['TITULO_PUBLICACAO'] or ''
+    # Document #2 - 'TITULO_RELACIONADO'
+    doc_2 = obj['TITULO_RELACIONADO'] or ''
+    # Document #3 - 'COLECAO'
+    doc_3 = obj['COLECAO'] or ''
+    # Document #4 - 'COMENTARIO'
+    doc_4 = obj['COMENTARIO'] or ''
+    # Document #5 - 'CONTEXT' (metadatas as document)
+    doc_5 = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
 
     return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
 
