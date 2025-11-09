@@ -12,6 +12,7 @@ fi
 '''
 
 import chromadb
+from chromadb.utils import embedding_functions
 import ijson
 import time
 from pathlib import Path
@@ -311,6 +312,58 @@ class RagHandler:
     self.delete_collection()
     self.create_collection()
 
+  def create_vectordb(self):
+    '''
+    Create a Chroma vector database.
+    '''
+
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
+
+    print(f">> Starting to create the vector database")
+
+    batch_range   = 100 # Number of objects to add at once per batch
+    saved_amount  = 0
+    total_amount  = len(self.unique_ids)
+    time_begin    = time.time()
+    time_previous = time_begin # Time of previous batch execution
+    time_current  = time_begin # Time of current batch execution
+
+    # If empty, stop
+    if total_amount == 0:
+      print("> Nothing to save.")
+      return
+
+    for i in range(0, total_amount, batch_range):
+      index_end = min(i + batch_range, total_amount)
+
+      # Add content to the collection
+      try:
+        self.collection.add(ids = self.unique_ids[i:index_end], metadatas = self.metadatas[i:index_end], documents = self.documents[i:index_end])
+
+        saved_amount += index_end - i
+      except Exception as err:
+        print(f"> Error in batch from {i} to {index_end}: {err}")
+
+      # Batch progress
+
+      time_current = time.time()
+      if time_current - time_previous > 1:
+        time_previous  = time_current
+        progress_ratio = (saved_amount / total_amount) if total_amount else 0
+
+        # Complete already, then break
+        if progress_ratio >= 1:
+          break
+
+        # Print actual progress
+        print(f"> Saved {saved_amount:,} objects in {round(time_current - time_begin, 2):.2f} seconds ({(progress_ratio * 100):.2f}%)")
+
+    # Print last progress
+    real_saved_amount = self.collection.count()
+    saved_amount_text = f"{real_saved_amount:,} of {saved_amount:,}" if real_saved_amount < saved_amount else f"{saved_amount:,}"
+    print(f"> Saved {saved_amount_text} objects in {round(time_current - time_begin, 2):.2f} seconds.")
+
   # endregion
 
 
@@ -462,7 +515,7 @@ if __name__ == "__main__":
   Parser
   '''
 
-  rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
+  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
 
   # Get info about a JSON file
   # print(rag_parser.get_json_file_info())
@@ -478,6 +531,23 @@ if __name__ == "__main__":
   # print(rag_parser.metadatas)
   # print()
   # print(rag_parser.documents)
+
+
+
+  '''
+  Parse a JSON file into a vector database
+  '''
+
+  rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
+                            client_path        = f'{PROJECT_ROOT}/output',
+                            collection_name    = 'data',
+                            embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
+
+  # Parse a JSON file and save its data as a vector database
+  rag_vectordb.load(limit = 1000)
+  rag_vectordb.create_vectordb()
+
+
 
   # Init search in terminal mode
   # rag.init_search_terminal_mode(n_results = 10)
