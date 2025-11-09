@@ -36,13 +36,18 @@ class RagHandler:
     RAG_ERROR_NOCOLLECTION  : "Collection is not created yet. Call create_collection(...) first.",
   }
 
+
+
+  # region MARK: Self
+
   def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
     self.json_filepath      = json_filepath
     self.client_path        = client_path
     self.collection_name    = collection_name
     self.embedding_function = embedding_function
-    self.client             = None
-    self.collection         = None
+
+    self.client     = None
+    self.collection = None
 
     # Clear data (which is empty already at this moment) and init internal lists
     self.clear_data()
@@ -55,6 +60,35 @@ class RagHandler:
     if collection_name:
       self.create_collection()
 
+  def clear_data(self):
+    '''
+    Clear stored data.
+    '''
+
+    # Clear collection, if it exists
+    if self.collection:
+      self.clear_collection()
+
+    # Clear internal lists
+    self.ids       = []
+    self.metadatas = []
+    self.documents = []
+
+  @staticmethod
+  def error(id):
+    '''
+    Get error message.
+
+    Args:
+      id (int): Error id.
+
+    Returns:
+      str: Error message.
+    '''
+
+    return RagHandler.__ERROR_MESSAGES[id]
+
+  # endregion
 
 
 
@@ -146,7 +180,7 @@ class RagHandler:
         { ... }  # Item 3
       ]
       '''
-      file.seek(0)
+      file.seek(0) # Reset file cursor
       for obj in ijson.items(file, prefix = 'item'):
         parsed_amount += 1
         obj['id']      = str(parsed_amount) # Unique id for the group of documents
@@ -225,24 +259,24 @@ class RagHandler:
 
 
 
-  # region MARK: ChromaDB
+  # region MARK: Chroma
 
   # region MARK: VectorDB
 
   def create_client(self):
     '''
-    Create a ChromaDB client.
+    Create a Chroma client.
     '''
 
-    # Create a ChromaDB persistent client
+    # Create a Chroma persistent client
     self.client = chromadb.PersistentClient(self.client_path)
 
     # Display a success message
-    print(f">> ChromaDB client has been created successfully at '{self.client_path}'")
+    print(f">> Chroma client has been created successfully at '{self.client_path}'")
 
   def create_collection(self):
     '''
-    Create a ChromaDB collection.
+    Create a Chroma collection.
     '''
 
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
@@ -258,7 +292,7 @@ class RagHandler:
 
   def delete_collection(self):
     '''
-    Delete a ChromaDB collection.
+    Delete the Chroma collection.
     '''
 
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
@@ -271,7 +305,7 @@ class RagHandler:
 
   def clear_collection(self):
     '''
-    Clear collection in the ChromaDB database.
+    Clear the Chroma collection.
     '''
 
     assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
@@ -287,7 +321,7 @@ class RagHandler:
 
   def search(self, query_text: str, n_results: int = 10):
     '''
-    Search for relevant documents in the ChromaDB collection.
+    Search for relevant documents in the Chroma collection.
     It needs a vector database to be already created and filled with the embeddings of the documents.
 
     Args:
@@ -328,7 +362,7 @@ class RagHandler:
 
   def init_search_terminal_mode(self, n_results: int = 10):
     '''
-    It uses the search method to search in the terminal for relevant documents in the ChromaDB collection.
+    It uses the search method to search in the terminal for relevant documents in the Chroma collection.
 
     Args:
       n_results (int, optional): The number of results to return. Defaults to 10.
@@ -354,43 +388,9 @@ class RagHandler:
 
 
 
-  # region MARK: Self
-
-  def clear_data(self):
-    '''
-    Clear stored data.
-    '''
-
-    # Clear collection, if it exists
-    if self.collection:
-      self.clear_collection()
-
-    # Clear internal lists
-    self.ids       = []
-    self.metadatas = []
-    self.documents = []
-
-  @staticmethod
-  def error(id):
-    '''
-    Get error message.
-
-    Args:
-      id (int): Error id.
-
-    Returns:
-      str: Error message.
-    '''
-
-    return RagHandler.__ERROR_MESSAGES[id]
-
-  # endregion
 
 
-
-
-
-# Test, according to the docs
+# Test, according to the Chroma docs
 def testChromaClient():
   '''
   See: https://python.langchain.com/docs/modules/data_connection/document_transformers/chroma.html
@@ -458,13 +458,28 @@ def testChromaClient():
 if __name__ == "__main__":
   # testChromaClient()
 
-  rag = RagHandler(json_filepath = f"{PROJECT_ROOT}/data/db.json")
+
+
+  '''
+  Parser
+  '''
+
+  rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
 
   # Get info about a JSON file
-  # print(rag.get_json_file_info())
+  # print(rag_parser.get_json_file_info())
 
   # Parse a JSON file in streaming mode (see print_json_file_data)
-  # rag.print_json_file_data(limit=10)
+  # rag_parser.print_json_file_data(limit = 10)
+
+  # Parse a JSON file and print its data of internal lists
+  # rag_parser.load(limit = 10)
+  # print()
+  # print(rag_parser.ids)
+  # print()
+  # print(rag_parser.metadatas)
+  # print()
+  # print(rag_parser.documents)
 
   # Init search in terminal mode
-  # rag.init_search_terminal_mode(n_results=10)
+  # rag.init_search_terminal_mode(n_results = 10)
