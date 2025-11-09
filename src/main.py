@@ -79,7 +79,7 @@ class RagHandler:
     '''
 
     # Clear collection, if it exists
-    if self.collection:
+    if self.has_data():
       self.clear_collection()
 
     # Clear internal lists
@@ -170,8 +170,7 @@ class RagHandler:
     assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     # Clear data, if any
-    if self.has_data():
-      self.clear_data()
+    self.clear_data()
 
     parsed_amount = 0
     json_info     = self.get_json_file_info()
