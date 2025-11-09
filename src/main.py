@@ -175,7 +175,7 @@ class RagHandler:
       **k (dict): Keyword arguments.
     '''
 
-    for id, metadatas, docs in rag.__parse_json_file(*a, **k):
+    for id, metadatas, docs in self.__parse_json_file(*a, **k):
       # Store ids, metadata and documents
       for doc in docs:
         self.ids.append(id)
@@ -208,7 +208,7 @@ class RagHandler:
       **k (dict): Keyword arguments.
     '''
 
-    for id, metadata, docs in rag.__parse_json_file(*a, **k):
+    for id, metadata, docs in self.__parse_json_file(*a, **k):
       doc_i = 0
 
       print(f">> Found new document #{id}")
