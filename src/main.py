@@ -108,6 +108,7 @@ class RagHandler:
     # Note:
     # The `ijson` parser returns None when the field is missing.
     # That's why I've used, for example, `obj['INSTITUICAO'] or ''`, instead of `obj.get('INSTITUICAO', '')`.
+    group_id             = int(obj['group_id']) or 0
     instituicao          = obj['INSTITUICAO'] or ''
     biblioteca           = obj['BIBLIOTECA_NOME'] or ''
     editora              = obj['NOME_EDITORA'] or ''
@@ -117,7 +118,7 @@ class RagHandler:
 
     # Metadatas
     metadatas = {
-      'unique_id'         : obj['unique_id'] or '',
+      'group_id'          : str(group_id),
       'COD_CCN_PUBLICACAO': obj['COD_CCN_PUBLICACAO'] or '',
       'INSTITUICAO'       : instituicao,
       'BIBLIOTECA_NOME'   : biblioteca,
@@ -172,14 +173,16 @@ class RagHandler:
       '''
       file.seek(0) # Reset file cursor
       for obj in ijson.items(file, prefix = 'item'):
-        parsed_amount   += 1
-        obj['unique_id'] = str(parsed_amount) # Unique id for the group of documents
-        data             = self.__parse_object(obj)
-        metadata         = data[0]
-        docs             = data[1:]
+        parsed_amount  += 1
+        obj['group_id'] = parsed_amount # Id for the group of documents
+        data            = self.__parse_object(obj)
+        metadatas       = data[0]
+        docs            = data[1:]
+        docs_amount     = len(docs)
+        unique_ids      = list(range((parsed_amount - 1) * docs_amount + 1, parsed_amount * docs_amount + 1))
 
-        # Deliver id, metadata and documents to the caller (generator)
-        yield obj['unique_id'], metadata, docs
+        # Deliver id, metadatas and documents to the caller (generator)
+        yield unique_ids, metadatas, docs
 
         # Display progress
         if parsed_amount % 1000 == 0:
@@ -199,9 +202,9 @@ class RagHandler:
       **k (dict): Keyword arguments.
     '''
 
-    for id, metadatas, docs in self.__parse_json_file(*a, **k):
-      # Store ids, metadata and documents
-      for doc in docs:
+    for unique_ids, metadatas, docs in self.__parse_json_file(*a, **k):
+      # Store unique ids, metadatas and documents
+      for id, doc in zip(unique_ids, docs):
         self.unique_ids.append(id)
         self.metadatas.append(metadatas)
         self.documents.append(doc)
@@ -232,16 +235,13 @@ class RagHandler:
       **k (dict): Keyword arguments.
     '''
 
-    for id, metadata, docs in self.__parse_json_file(*a, **k):
-      doc_i = 0
+    for unique_ids, metadatas, docs in self.__parse_json_file(*a, **k):
+      print(f">> Found new document of group #{metadatas.get('group_id', 0)}:\n")
 
-      print(f">> Found new document #{id}")
+      print(f"> Metadatas:\n{metadatas}\n")
 
-      print(f"> Metadata:\n{metadata}\n")
-
-      for doc in docs:
-        doc_i += 1
-        print(f"> Document #{doc_i}\n{doc}\n")
+      for id, doc in zip(unique_ids, docs):
+        print(f"> Document #{id}\n{doc}\n")
 
       print('-' * 10 + '\n')
 
