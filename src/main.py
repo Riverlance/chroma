@@ -22,6 +22,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 
 
+# Error codes
 RAG_ERROR                = 0
 RAG_ERROR_NOJSONFILEPATH = 1
 RAG_ERROR_NOCLIENT       = 1
@@ -55,10 +56,12 @@ class RagHandler:
     # Init client
     if client_path:
       self.create_client()
+      print(f">> Chroma client has been created successfully at '{client_path}'")
 
     # Init empty collection
     if collection_name:
       self.create_collection()
+      print(f">> Chroma collection has been created successfully as '{collection_name}'")
 
   def has_data(self):
     '''
@@ -256,7 +259,7 @@ class RagHandler:
       for id, doc in zip(unique_ids, docs):
         print(f"> Document #{id}\n{doc}\n")
 
-      print('-' * 10 + '\n')
+      print('--- ' * 7 + '\n')
 
   # endregion
 
@@ -274,9 +277,6 @@ class RagHandler:
     # Create a Chroma persistent client
     self.client = chromadb.PersistentClient(self.client_path)
 
-    # Display a success message
-    print(f">> Chroma client has been created successfully at '{self.client_path}'")
-
   def create_collection(self):
     '''
     Create a Chroma collection.
@@ -289,9 +289,6 @@ class RagHandler:
 
     # Create a collection
     self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
-
-    # Display the number of objects in the collection
-    print(f">> {self.collection.count()} objects found in the collection.")
 
   def delete_collection(self):
     '''
