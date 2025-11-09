@@ -70,9 +70,9 @@ class RagHandler:
       self.clear_collection()
 
     # Clear internal lists
-    self.ids       = []
-    self.metadatas = []
-    self.documents = []
+    self.unique_ids = []
+    self.metadatas  = []
+    self.documents  = []
 
   @staticmethod
   def error(id):
@@ -117,14 +117,14 @@ class RagHandler:
 
     # Metadatas
     metadatas = {
-      'id':                 obj['id'] or '',
+      'unique_id'         : obj['unique_id'] or '',
       'COD_CCN_PUBLICACAO': obj['COD_CCN_PUBLICACAO'] or '',
-      'INSTITUICAO':        instituicao,
-      'BIBLIOTECA_NOME':    biblioteca,
-      'NOME_EDITORA':       editora,
-      'AREA_CONHECIMENTO':  area_conhecimento,
-      'SPINES':             assuntos_controlados,
-      'TERMO_LIVRE':        termo_livre,
+      'INSTITUICAO'       : instituicao,
+      'BIBLIOTECA_NOME'   : biblioteca,
+      'NOME_EDITORA'      : editora,
+      'AREA_CONHECIMENTO' : area_conhecimento,
+      'SPINES'            : assuntos_controlados,
+      'TERMO_LIVRE'       : termo_livre,
     }
 
     # 5 documents per object
@@ -172,14 +172,14 @@ class RagHandler:
       '''
       file.seek(0) # Reset file cursor
       for obj in ijson.items(file, prefix = 'item'):
-        parsed_amount += 1
-        obj['id']      = str(parsed_amount) # Unique id for the group of documents
-        data           = self.__parse_object(obj)
-        metadata       = data[0]
-        docs           = data[1:]
+        parsed_amount   += 1
+        obj['unique_id'] = str(parsed_amount) # Unique id for the group of documents
+        data             = self.__parse_object(obj)
+        metadata         = data[0]
+        docs             = data[1:]
 
         # Deliver id, metadata and documents to the caller (generator)
-        yield obj['id'], metadata, docs
+        yield obj['unique_id'], metadata, docs
 
         # Display progress
         if parsed_amount % 1000 == 0:
@@ -202,7 +202,7 @@ class RagHandler:
     for id, metadatas, docs in self.__parse_json_file(*a, **k):
       # Store ids, metadata and documents
       for doc in docs:
-        self.ids.append(id)
+        self.unique_ids.append(id)
         self.metadatas.append(metadatas)
         self.documents.append(doc)
 
@@ -463,7 +463,7 @@ if __name__ == "__main__":
   # Parse a JSON file and print its data of internal lists
   # rag_parser.load(limit = 10)
   # print()
-  # print(rag_parser.ids)
+  # print(rag_parser.unique_ids)
   # print()
   # print(rag_parser.metadatas)
   # print()
