@@ -44,14 +44,17 @@ class RagHandler:
     self.client             = None
     self.collection         = None
 
+    # Clear data (which is empty already at this moment) and init internal lists
+    self.clear_data()
+
+    # Init client
     if client_path:
       self.create_client()
 
+    # Init empty collection
     if collection_name:
       self.create_collection()
 
-    # Clear data
-    self.clear_data()
 
 
 
