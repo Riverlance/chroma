@@ -106,20 +106,23 @@ class RagHandler:
     '''
 
     # Note:
-    # The `ijson` parser returns None when the field is missing.
-    # That's why I've used, for example, `obj['INSTITUICAO'] or ''`, instead of `obj.get('INSTITUICAO', '')`.
-    group_id             = int(obj['group_id']) or 0
-    instituicao          = obj['INSTITUICAO'] or ''
-    biblioteca           = obj['BIBLIOTECA_NOME'] or ''
-    editora              = obj['NOME_EDITORA'] or ''
-    area_conhecimento    = obj['AREA_CONHECIMENTO'] or ''
-    assuntos_controlados = obj['SPINES'] or ''
-    termo_livre          = obj['TERMO_LIVRE'] or ''
+    # There is a problem that obj.get('INSTITUICAO', '') only uses the default value if the key doesn't exist in json.
+    # But if the key explicitly exists with a `null` value (which becomes `None` in Python), it returns the explicit `None`, instead of the default value.
+    # One work around for this, is to force the fallback manually. For example: `obj.get('INSTITUICAO') or ''`.
+    # Therefore, if the value is `None`, `''` or another "falsy" value, then `''` will be used instead.
+
+    group_id             = int(obj.get('group_id') or 0)
+    instituicao          = obj.get('INSTITUICAO') or ''
+    biblioteca           = obj.get('BIBLIOTECA_NOME') or ''
+    editora              = obj.get('NOME_EDITORA') or ''
+    area_conhecimento    = obj.get('AREA_CONHECIMENTO') or ''
+    assuntos_controlados = obj.get('SPINES') or ''
+    termo_livre          = obj.get('TERMO_LIVRE') or ''
 
     # Metadatas
     metadatas = {
       'group_id'          : str(group_id),
-      'COD_CCN_PUBLICACAO': obj['COD_CCN_PUBLICACAO'] or '',
+      'COD_CCN_PUBLICACAO': obj.get('COD_CCN_PUBLICACAO') or '',
       'INSTITUICAO'       : instituicao,
       'BIBLIOTECA_NOME'   : biblioteca,
       'NOME_EDITORA'      : editora,
@@ -130,13 +133,13 @@ class RagHandler:
 
     # 5 documents per object
     # Document #1 - 'TITULO_PUBLICACAO'
-    doc_1 = obj['TITULO_PUBLICACAO'] or ''
+    doc_1 = obj.get('TITULO_PUBLICACAO') or ''
     # Document #2 - 'TITULO_RELACIONADO'
-    doc_2 = obj['TITULO_RELACIONADO'] or ''
+    doc_2 = obj.get('TITULO_RELACIONADO') or ''
     # Document #3 - 'COLECAO'
-    doc_3 = obj['COLECAO'] or ''
+    doc_3 = obj.get('COLECAO') or ''
     # Document #4 - 'COMENTARIO'
-    doc_4 = obj['COMENTARIO'] or ''
+    doc_4 = obj.get('COMENTARIO') or ''
     # Document #5 - 'CONTEXT' (metadatas as document)
     doc_5 = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
 
@@ -236,7 +239,7 @@ class RagHandler:
     '''
 
     for unique_ids, metadatas, docs in self.__parse_json_file(*a, **k):
-      print(f">> Found new document of group #{metadatas.get('group_id', 0)}:\n")
+      print(f">> Found new document of group #{metadatas.get('group_id') or 0}:\n")
 
       print(f"> Metadatas:\n{metadatas}\n")
 
