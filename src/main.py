@@ -45,7 +45,7 @@ class RagHandler:
     self.collection         = None
 
     if client_path:
-      self.create_client(path = client_path)
+      self.create_client()
 
     if collection_name:
       self.create_collection(name = collection_name, embedding_function = embedding_function)
@@ -226,19 +226,16 @@ class RagHandler:
 
   # region MARK: VectorDB
 
-  def create_client(self, path: str = 'vectordb'):
+  def create_client(self):
     '''
     Create a ChromaDB client.
-
-    Args:
-      path (str, optional): The path to the VectorDB database.
     '''
 
     # Create a ChromaDB persistent client
-    self.client = chromadb.PersistentClient(path = path)
+    self.client = chromadb.PersistentClient(self.client_path)
 
     # Display a success message
-    print(f">> ChromaDB client has been created successfully at '{path}'")
+    print(f">> ChromaDB client has been created successfully at '{self.client_path}'")
 
   def create_collection(self, name: str = 'data'):
     '''
