@@ -48,7 +48,7 @@ class RagHandler:
       self.create_client()
 
     if collection_name:
-      self.create_collection(name = collection_name, embedding_function = embedding_function)
+      self.create_collection(embedding_function = embedding_function)
 
     # Clear data
     self.clear_data()
@@ -237,12 +237,11 @@ class RagHandler:
     # Display a success message
     print(f">> ChromaDB client has been created successfully at '{self.client_path}'")
 
-  def create_collection(self, name: str = 'data'):
+  def create_collection(self, embedding_function: object = None):
     '''
     Create a ChromaDB collection.
 
     Args:
-      name (str, optional): The name of the collection.
       embedding_function (object, optional): The embedding function to use.
     '''
 
@@ -252,7 +251,7 @@ class RagHandler:
     self.delete_collection()
 
     # Create a collection
-    self.collection = self.client.create_collection(name = name)
+    self.collection = self.client.create_collection(name = self.collection_name, embedding_function = embedding_function)
 
     # Display the number of objects in the collection
     print(f">> {self.collection.count()} objects found in the collection.")
