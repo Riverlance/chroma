@@ -15,6 +15,7 @@ import chromadb
 import ijson
 import time
 from pathlib import Path
+# import traceback # Debugging (t.print_stack())
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
