@@ -19,3 +19,11 @@ data/
 
 # Databases
 db/
+
+
+
+# Chroma
+# Vector database
+*.sqlite3
+# Folders inside output
+/output/*/
