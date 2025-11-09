@@ -60,6 +60,15 @@ class RagHandler:
     if collection_name:
       self.create_collection()
 
+  def has_data(self):
+    '''
+    Check if collection has data.
+
+    Returns:
+      bool: `True` if collection has data, `False` otherwise.
+    '''
+    return self.collection and self.collection.count()
+
   def clear_data(self):
     '''
     Clear stored data.
@@ -156,8 +165,9 @@ class RagHandler:
 
     assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
-    # Clear data
-    self.clear_data()
+    # Clear data, if any
+    if self.has_data():
+      self.clear_data()
 
     parsed_amount = 0
     json_info     = self.get_json_file_info()
