@@ -555,7 +555,5 @@ if __name__ == "__main__":
   # # Search "Journal" in the vector database
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
-
-
-  # # Init search in terminal mode
-  # rag.init_search_terminal_mode(n_results = 10)
+  # # # Init search in terminal mode
+  # rag_search.init_search_terminal_mode(n_results = 10)
