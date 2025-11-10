@@ -126,7 +126,7 @@ class RagHandler:
     # Document #4 - 'COMENTARIO'
     doc_3 = (obj.get('COMENTARIO') or '').strip()
     # Document #5 - 'CONTEXT' (metadatas as document)
-    doc_5 = f'Instituição: "{instituicao}"; Biblioteca: "{biblioteca}"; Editora: "{editora}"; Área do Conhecimento: "{area_conhecimento}"; Assuntos Controlados: "{assuntos_controlados}"; Termo Livre: "{termo_livre}"; Título da Publicação: "{doc_1}"; Título Relacionado: "{doc_2}"; Comentário: "{doc_3}"'
+    doc_4 = f'Instituição: "{instituicao}"; Biblioteca: "{biblioteca}"; Editora: "{editora}"; Área do Conhecimento: "{area_conhecimento}"; Assuntos Controlados: "{assuntos_controlados}"; Termo Livre: "{termo_livre}"; Título da Publicação: "{doc_1}"; Título Relacionado: "{doc_2}"; Comentário: "{doc_3}"'
 
     # Metadatas
     metadatas = {
@@ -147,7 +147,7 @@ class RagHandler:
     }
 
     # Remove empty documents
-    docs = [doc.strip() for doc in (doc_1, doc_2, doc_3, doc_5) if doc.strip()]
+    docs = [doc.strip() for doc in (doc_1, doc_2, doc_3, doc_4) if doc.strip()]
 
     return metadatas, *docs
 
