@@ -111,17 +111,29 @@ class RagHandler:
     # Therefore, if the value is `None`, `''` or another "falsy" value, then `''` will be used instead.
 
     group_id             = int(obj.get('group_id') or 0)
-    instituicao          = obj.get('INSTITUICAO') or ''
-    biblioteca           = obj.get('BIBLIOTECA_NOME') or ''
-    editora              = obj.get('NOME_EDITORA') or ''
-    area_conhecimento    = obj.get('AREA_CONHECIMENTO') or ''
-    assuntos_controlados = obj.get('SPINES') or ''
-    termo_livre          = obj.get('TERMO_LIVRE') or ''
+    instituicao          = (obj.get('INSTITUICAO') or '').strip()
+    biblioteca           = (obj.get('BIBLIOTECA_NOME') or '').strip()
+    editora              = (obj.get('NOME_EDITORA') or '').strip()
+    area_conhecimento    = (obj.get('AREA_CONHECIMENTO') or '').strip()
+    assuntos_controlados = (obj.get('SPINES') or '').strip()
+    termo_livre          = (obj.get('TERMO_LIVRE') or '').strip()
+
+    # 5 documents per object
+    # Document #1 - 'TITULO_PUBLICACAO'
+    doc_1 = (obj.get('TITULO_PUBLICACAO') or '').strip()
+    # Document #2 - 'TITULO_RELACIONADO'
+    doc_2 = (obj.get('TITULO_RELACIONADO') or '').strip()
+    # Document #3 - 'COLECAO'
+    doc_3 = (obj.get('COLECAO') or '').strip()
+    # Document #4 - 'COMENTARIO'
+    doc_4 = (obj.get('COMENTARIO') or '').strip()
+    # Document #5 - 'CONTEXT' (metadatas as document)
+    doc_5 = f'Instituição: "{instituicao}"; Biblioteca: "{biblioteca}"; Editora: "{editora}"; Área do Conhecimento: "{area_conhecimento}"; Assuntos Controlados: "{assuntos_controlados}"; Termo Livre: "{termo_livre}"'
 
     # Metadatas
     metadatas = {
       'group_id'          : str(group_id),
-      'COD_CCN_PUBLICACAO': obj.get('COD_CCN_PUBLICACAO') or '',
+      'COD_CCN_PUBLICACAO': (obj.get('COD_CCN_PUBLICACAO') or '').strip(),
       'INSTITUICAO'       : instituicao,
       'BIBLIOTECA_NOME'   : biblioteca,
       'NOME_EDITORA'      : editora,
@@ -130,19 +142,10 @@ class RagHandler:
       'TERMO_LIVRE'       : termo_livre,
     }
 
-    # 5 documents per object
-    # Document #1 - 'TITULO_PUBLICACAO'
-    doc_1 = obj.get('TITULO_PUBLICACAO') or ''
-    # Document #2 - 'TITULO_RELACIONADO'
-    doc_2 = obj.get('TITULO_RELACIONADO') or ''
-    # Document #3 - 'COLECAO'
-    doc_3 = obj.get('COLECAO') or ''
-    # Document #4 - 'COMENTARIO'
-    doc_4 = obj.get('COMENTARIO') or ''
-    # Document #5 - 'CONTEXT' (metadatas as document)
-    doc_5 = f"Instituição: {instituicao}; Biblioteca: {biblioteca}; Editora: {editora}; Área do Conhecimento: {area_conhecimento}; Assuntos Controlados: {assuntos_controlados}; Termo Livre: {termo_livre}"
+    # Remove empty documents
+    docs = [doc.strip() for doc in (doc_1, doc_2) if doc.strip()]
 
-    return metadatas, doc_1, doc_2, doc_3, doc_4, doc_5
+    return metadatas, *docs
 
   def __parse_json_file(self, limit: int = None):
     '''
@@ -156,6 +159,7 @@ class RagHandler:
     assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     parsed_amount = 0
+    unique_id     = 0
     json_info     = self.get_json_file_info()
 
     print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)")
@@ -175,10 +179,19 @@ class RagHandler:
         parsed_amount  += 1
         obj['group_id'] = parsed_amount # Id for the group of documents
         data            = self.__parse_object(obj)
-        metadatas       = data[0]
-        docs            = data[1:]
-        docs_amount     = len(docs)
-        unique_ids      = [str(i) for i in range((parsed_amount - 1) * docs_amount + 1, parsed_amount * docs_amount + 1)]
+
+        # Needs at least metadatas and 1 document
+        if len(data) < 2:
+          continue
+
+        metadatas  = data[0]
+        docs       = data[1:]
+        unique_ids = [ ]
+
+        # Generate unique ids
+        for _ in range(len(docs)):
+          unique_id += 1
+          unique_ids.append(str(unique_id))
 
         # Deliver id, metadatas and documents to the caller (generator)
         yield unique_ids, metadatas, docs
