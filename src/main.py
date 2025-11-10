@@ -271,14 +271,12 @@ class RagHandler:
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
     # Get existing collection
-    self.collection = self.client.get_collection(name = self.collection_name)
-
-    # Collection exists already
-    if self.collection:
+    try:
+      self.collection = self.client.get_collection(name = self.collection_name)
       print(f">> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count()} items")
 
     # Collection doesn't exist
-    else:
+    except chromadb.errors.NotFoundError:
       self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
       print(f">> Collection '{self.collection_name}' has been created successfully")
 
