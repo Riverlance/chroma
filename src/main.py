@@ -371,24 +371,21 @@ class RagHandler:
     results = self.collection.query(query_texts = [query_text], n_results = n_results)
 
     # Get the metadatas and documents
+    ids       = results['ids'][0]
     metadatas = results['metadatas'][0]
     documents = results['documents'][0]
 
     # Display the results
 
     # Found results
-    if metadatas and documents:
+    if ids and metadatas and documents:
       print(f">> Found {len(documents)} relevant results:\n")
 
-      for i, (metadata, document) in enumerate(zip(metadatas, documents), 1):
-        print(f"{i}")
-
-        # todo - print data
-        # print(f"{i}. {metadata['titulo']}")
-        # print(f"Author: {metadata['autor']}")
-        # print(f"Resume: {document[:200]}...")
-        # print(f"ID: {metadata['id_original']}")
-        print()
+      for i, (id, metadata, document) in enumerate(zip(ids, metadatas, documents), 1):
+        print(f"> Result #{i} - Document #{id}\n")
+        print(f"> Metadatas:\n{metadata}\n")
+        print(f"> Document (255 chars only):\n{document[:255]}{'...' if len(document) > 255 else ''}\n")
+        print('--- ' * 7 + '\n')
 
     # No results found
     else:
@@ -521,14 +518,26 @@ if __name__ == "__main__":
   Parse a JSON file into a vector database
   '''
 
-  rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
-                            client_path        = f'{PROJECT_ROOT}/output',
-                            collection_name    = 'data',
-                            embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
+  # rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
+  #                           client_path        = f'{PROJECT_ROOT}/output',
+  #                           collection_name    = 'data',
+  #                           embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
 
-  # Parse a JSON file and save its data as a vector database
-  rag_vectordb.load(limit = 1000)
-  rag_vectordb.create_vectordb()
+  # # Parse a JSON file and save its data as a vector database
+  # rag_vectordb.load(limit = 10000)
+  # rag_vectordb.create_vectordb()
+
+
+
+  '''
+  Search in a vector database
+  '''
+
+  # rag_search = RagHandler(client_path     = f'{PROJECT_ROOT}/output',
+  #                         collection_name = 'data')
+
+  # # Search "Journal" in the vector database
+  # rag_search.search(query_text = "Journal", n_results = 10)
 
 
 
