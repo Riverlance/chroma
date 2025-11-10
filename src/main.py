@@ -173,7 +173,7 @@ class RagHandler:
     time_previous = time_begin # Time of previous batch execution
     time_current  = time_begin # Time of current batch execution
 
-    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB).")
+    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)...")
 
     with open(self.json_filepath, 'rb') as file:
       # Parse streaming
@@ -223,6 +223,8 @@ class RagHandler:
         # Stop if limit is reached
         if limit and parsed_amount >= limit:
           break
+
+    print(f"> Parsed '{json_info[0].name}' ({json_info[1]:.2f} MB) in {round(time_current - time_begin)} seconds.\n")
 
   def load(self, *a, **k):
     '''
@@ -290,10 +292,12 @@ class RagHandler:
     Create a Chroma client.
     '''
 
+    print(">> Creating client...")
+
     # Create a Chroma persistent client
     self.client = chromadb.PersistentClient(path = self.client_path, settings = chromadb.config.Settings(anonymized_telemetry = False))
 
-    print(f">> Client has been created successfully with path as '{self.client_path}'.")
+    print(f"> Client has been created successfully with path as '{self.client_path}'.\n")
 
   def create_collection(self):
     '''
@@ -302,15 +306,17 @@ class RagHandler:
 
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
+    print(">> Creating collection...")
+
     # Get existing collection
     try:
       self.collection = self.client.get_collection(name = self.collection_name)
-      print(f">> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count():,} items.")
+      print(f"> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count():,} items.\n")
 
     # Collection doesn't exist
     except chromadb.errors.NotFoundError:
       self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
-      print(f">> Collection '{self.collection_name}' has been created successfully.")
+      print(f"> Collection '{self.collection_name}' has been created successfully.\n")
 
   def delete_collection(self):
     '''
@@ -333,7 +339,7 @@ class RagHandler:
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
     assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
-    print(f">> Starting to create the vector database.")
+    print(f">> Starting to create the vector database...")
 
     batch_range   = 100 # Number of objects to add at once per batch
     saved_amount  = 0
@@ -372,10 +378,10 @@ class RagHandler:
 
         # Print actual progress
         time_elapsed = round(time_current - time_begin)
-        print(f"> Saved {saved_amount:,} objects in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%).")
+        print(f"> Saved {saved_amount:,} documents in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%).")
 
     # Print last progress
-    print(f">> Saved {saved_amount:,} objects (of {saved_amount + self.empty_docs_amount:,}, ignoring {self.empty_docs_amount:,} empty documents) in {round(time_current - time_begin, 2):.2f} seconds.")
+    print(f"> Saved {saved_amount:,} documents (of {saved_amount + self.empty_docs_amount:,}, ignoring {self.empty_docs_amount:,} empty documents) in {round(time_current - time_begin, 2):.2f} seconds.\n")
 
   # endregion
 
@@ -483,12 +489,12 @@ if __name__ == "__main__":
   # # Parse a JSON file and save its data as a vector database
   # print(">> Creating embedding function...")
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
-  # print(">> Embedding function has been created successfully.")
+  # print("> Embedding function has been created successfully.\n")
   # rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
   #                           client_path        = f'{PROJECT_ROOT}/output',
   #                           collection_name    = 'data',
   #                           embedding_function = embedding_function)
-  # rag_vectordb.load(limit = 1000)
+  # rag_vectordb.load(limit = 200)
   # rag_vectordb.create_vectordb()
 
 
