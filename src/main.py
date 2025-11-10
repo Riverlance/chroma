@@ -258,7 +258,7 @@ class RagHandler:
     '''
 
     # Create a Chroma persistent client
-    self.client = chromadb.PersistentClient(self.client_path)
+    self.client = chromadb.PersistentClient(path = self.client_path, settings = chromadb.config.Settings(anonymized_telemetry = False))
 
     print(f">> Client has been created successfully at '{self.client_path}'")
 
