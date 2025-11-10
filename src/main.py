@@ -52,8 +52,10 @@ class RagHandler:
     self.client     = None
     self.collection = None
 
-    # Clear data (which is empty already at this moment) and init internal lists
-    self.clear_data()
+    # JSON parsing data
+    self.unique_ids = [ ]
+    self.metadatas  = [ ]
+    self.documents  = [ ]
 
     # Init client
     if client_path:
@@ -73,20 +75,6 @@ class RagHandler:
       bool: `True` if collection has data, `False` otherwise.
     '''
     return self.collection and self.collection.count()
-
-  def clear_data(self):
-    '''
-    Clear stored data.
-    '''
-
-    # Clear collection, if it exists
-    if self.has_data():
-      self.clear_collection()
-
-    # Clear internal lists
-    self.unique_ids = []
-    self.metadatas  = []
-    self.documents  = []
 
   @staticmethod
   def error(id):
@@ -169,9 +157,6 @@ class RagHandler:
     '''
 
     assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
-
-    # Clear data, if any
-    self.clear_data()
 
     parsed_amount = 0
     json_info     = self.get_json_file_info()
@@ -285,11 +270,8 @@ class RagHandler:
 
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
-    # Delete all collections
-    self.delete_collection()
-
     # Create a collection
-    self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
+    self.collection = self.client.get_collection(name = self.collection_name) or self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
 
   def delete_collection(self):
     '''
@@ -303,14 +285,6 @@ class RagHandler:
         self.client.delete_collection(name = collection.name)
       except:
         pass
-
-  def clear_collection(self):
-    '''
-    Clear the Chroma collection.
-    '''
-
-    self.delete_collection()
-    self.create_collection()
 
   def create_vectordb(self):
     '''
