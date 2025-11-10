@@ -167,32 +167,39 @@ class RagHandler:
     parsed_amount = 0
     unique_id     = 0
     json_info     = self.get_json_file_info()
+    time_begin    = time.time()
+    time_previous = time_begin # Time of previous batch execution
+    time_current  = time_begin # Time of current batch execution
 
     print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)")
 
     with open(self.json_filepath, 'rb') as file:
       # Parse streaming
+
       '''
-      json format example:
+      Expected json format:
       [
         { ... }, # Item 1
         { ... }, # Item 2
         { ... }  # Item 3
       ]
       '''
-      file.seek(0) # Reset file cursor
+
+      # Reset file cursor
+      file.seek(0)
+
       for obj in ijson.items(file, prefix = 'item'):
         parsed_amount  += 1
         obj['group_id'] = parsed_amount # Id for the group of documents
         data            = self.__parse_object(obj)
+        unique_ids      = [ ]
 
         # Needs at least metadatas and 1 document
         if len(data) < 2:
           continue
 
-        metadatas  = data[0]
-        docs       = data[1:]
-        unique_ids = [ ]
+        metadatas = data[0]
+        docs      = data[1:]
 
         # Generate unique ids
         for _ in range(len(docs)):
@@ -203,8 +210,13 @@ class RagHandler:
         yield unique_ids, metadatas, docs
 
         # Display progress
-        if parsed_amount % 1000 == 0:
-          print(f"> {parsed_amount:,} objects parsed.")
+        time_current = time.time()
+        if time_current - time_previous > 1:
+          time_previous = time_current
+
+          # Print actual progress
+          time_elapsed = round(time_current - time_begin)
+          print(f"> {parsed_amount:,} objects parsed in {time_elapsed} second{'' if time_elapsed < 2 else 's'}.")
 
         # Stop if limit is reached
         if limit and parsed_amount >= limit:
