@@ -60,12 +60,10 @@ class RagHandler:
     # Init client
     if client_path:
       self.create_client()
-      print(f">> Chroma client has been created successfully at '{client_path}'")
 
     # Init empty collection
     if collection_name:
       self.create_collection()
-      print(f">> Chroma collection has been created successfully as '{collection_name}'")
 
   def has_data(self):
     '''
@@ -263,6 +261,8 @@ class RagHandler:
     # Create a Chroma persistent client
     self.client = chromadb.PersistentClient(self.client_path)
 
+    print(f">> Client has been created successfully at '{self.client_path}'")
+
   def create_collection(self):
     '''
     Create a Chroma collection.
@@ -270,8 +270,17 @@ class RagHandler:
 
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
-    # Create a collection
-    self.collection = self.client.get_collection(name = self.collection_name) or self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
+    # Get existing collection
+    self.collection = self.client.get_collection(name = self.collection_name)
+
+    # Collection exists already
+    if self.collection:
+      print(f">> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count()} items")
+
+    # Collection doesn't exist
+    else:
+      self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
+      print(f">> Collection '{self.collection_name}' has been created successfully")
 
   def delete_collection(self):
     '''
@@ -356,7 +365,7 @@ class RagHandler:
 
     assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
-    print(f"\n>> Requested query: \"{query_text}\"\n\n")
+    print(f"\n>> Requested query: \"{query_text}\"")
 
     # Search for relevant documents and their metadatas
     results = self.collection.query(query_texts = [query_text], n_results = n_results)
