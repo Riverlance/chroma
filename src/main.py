@@ -128,7 +128,7 @@ class RagHandler:
     # Document #4 - 'COMENTARIO'
     doc_4 = (obj.get('COMENTARIO') or '').strip()
     # Document #5 - 'CONTEXT' (metadatas as document)
-    doc_5 = f'Instituição: "{instituicao}"; Biblioteca: "{biblioteca}"; Editora: "{editora}"; Área do Conhecimento: "{area_conhecimento}"; Assuntos Controlados: "{assuntos_controlados}"; Termo Livre: "{termo_livre}"'
+    doc_5 = f'Instituição: "{instituicao}"; Biblioteca: "{biblioteca}"; Editora: "{editora}"; Área do Conhecimento: "{area_conhecimento}"; Assuntos Controlados: "{assuntos_controlados}"; Termo Livre: "{termo_livre}"; Título da Publicação: "{doc_1}"; Título Relacionado: "{doc_2}"; Comentário: "{doc_4}"'
 
     # Metadatas
     metadatas = {
