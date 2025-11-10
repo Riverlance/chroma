@@ -52,9 +52,10 @@ class RagHandler:
     self.collection = None
 
     # JSON parsing data
-    self.unique_ids = [ ]
-    self.metadatas  = [ ]
-    self.documents  = [ ]
+    self.unique_ids        = [ ]
+    self.metadatas         = [ ]
+    self.documents         = [ ]
+    self.empty_docs_amount = 0
 
     # Init client
     if client_path:
@@ -147,9 +148,12 @@ class RagHandler:
     }
 
     # Remove empty documents
-    docs = [doc.strip() for doc in (doc_1, doc_2, doc_3, doc_4) if doc.strip()]
+    docs              = [doc_1, doc_2, doc_3, doc_4]
+    docs_amount       = len(docs)
+    filled_docs       = [doc.strip() for doc in docs if doc.strip()]
+    empty_docs_amount = docs_amount - len(filled_docs)
 
-    return metadatas, *docs
+    return metadatas, empty_docs_amount, *filled_docs
 
   def __parse_json_file(self, limit: int = None):
     '''
@@ -187,17 +191,17 @@ class RagHandler:
       file.seek(0)
 
       for obj in ijson.items(file, prefix = 'item'):
-        parsed_amount  += 1
-        obj['group_id'] = parsed_amount # Id for the group of documents
-        data            = self.__parse_object(obj)
-        unique_ids      = [ ]
+        parsed_amount    += 1
+        obj['group_id']   = parsed_amount # Id for the group of documents
+        data              = self.__parse_object(obj)
+        data_len          = len(data)
+        unique_ids        = [ ]
+        metadatas         = data[0] if data_len > 0 else { }
+        empty_docs_amount = data[1] if data_len > 1 else 0
+        docs              = data[2:] if data_len > 2 else [ ]
 
-        # Needs at least metadatas and 1 document
-        if len(data) < 2:
-          continue
-
-        metadatas = data[0]
-        docs      = data[1:]
+        # Update empty documents amount
+        self.empty_docs_amount += empty_docs_amount
 
         # Generate unique ids
         for _ in range(len(docs)):
@@ -371,9 +375,7 @@ class RagHandler:
         print(f"> Saved {saved_amount:,} objects in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%).")
 
     # Print last progress
-    real_saved_amount = self.collection.count()
-    saved_amount_text = f"{real_saved_amount:,} of {saved_amount:,}" if real_saved_amount < saved_amount else f"{saved_amount:,}"
-    print(f"> Saved {saved_amount_text} objects in {round(time_current - time_begin, 2):.2f} seconds.")
+    print(f">> Saved {saved_amount:,} objects (of {saved_amount + self.empty_docs_amount:,}, ignoring {self.empty_docs_amount:,} empty documents) in {round(time_current - time_begin, 2):.2f} seconds.")
 
   # endregion
 
