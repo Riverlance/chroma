@@ -415,10 +415,9 @@ class RagHandler:
       n_results (int, optional): The number of results to return. Defaults to 10.
     '''
     print(">> RAG Search ~")
-    print('> Type "quit" to exit.\n\n')
 
     while True:
-      query = input("\nType your question:").strip()
+      query = input("\nType your question (\"quit\" to exit): ").strip()
 
       if query.lower() in ['quit', 'q', 'exit', 'sair']:
         print(">> Ending session.")
