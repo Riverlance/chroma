@@ -369,7 +369,8 @@ class RagHandler:
           break
 
         # Print actual progress
-        print(f"> Saved {saved_amount:,} objects in {round(time_current - time_begin, 2):.2f} seconds ({(progress_ratio * 100):.2f}%)")
+        time_elapsed = round(time_current - time_begin)
+        print(f"> Saved {saved_amount:,} objects in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%)")
 
     # Print last progress
     real_saved_amount = self.collection.count()
