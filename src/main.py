@@ -171,7 +171,7 @@ class RagHandler:
     time_previous = time_begin # Time of previous batch execution
     time_current  = time_begin # Time of current batch execution
 
-    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)")
+    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB).")
 
     with open(self.json_filepath, 'rb') as file:
       # Parse streaming
@@ -291,7 +291,7 @@ class RagHandler:
     # Create a Chroma persistent client
     self.client = chromadb.PersistentClient(path = self.client_path, settings = chromadb.config.Settings(anonymized_telemetry = False))
 
-    print(f">> Client has been created successfully at '{self.client_path}'")
+    print(f">> Client has been created successfully with path as '{self.client_path}'.")
 
   def create_collection(self):
     '''
@@ -303,12 +303,12 @@ class RagHandler:
     # Get existing collection
     try:
       self.collection = self.client.get_collection(name = self.collection_name)
-      print(f">> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count()} items")
+      print(f">> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count():,} items.")
 
     # Collection doesn't exist
     except chromadb.errors.NotFoundError:
       self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
-      print(f">> Collection '{self.collection_name}' has been created successfully")
+      print(f">> Collection '{self.collection_name}' has been created successfully.")
 
   def delete_collection(self):
     '''
@@ -331,7 +331,7 @@ class RagHandler:
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
     assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
-    print(f">> Starting to create the vector database")
+    print(f">> Starting to create the vector database.")
 
     batch_range   = 100 # Number of objects to add at once per batch
     saved_amount  = 0
@@ -370,7 +370,7 @@ class RagHandler:
 
         # Print actual progress
         time_elapsed = round(time_current - time_begin)
-        print(f"> Saved {saved_amount:,} objects in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%)")
+        print(f"> Saved {saved_amount:,} objects in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%).")
 
     # Print last progress
     real_saved_amount = self.collection.count()
@@ -428,6 +428,7 @@ class RagHandler:
     Args:
       n_results (int, optional): The number of results to return.
     '''
+
     print(">> RAG Search")
 
     while True:
