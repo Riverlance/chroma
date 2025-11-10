@@ -123,8 +123,6 @@ class RagHandler:
     doc_1 = (obj.get('TITULO_PUBLICACAO') or '').strip()
     # Document #2 - 'TITULO_RELACIONADO'
     doc_2 = (obj.get('TITULO_RELACIONADO') or '').strip()
-    # Document #3 - 'COLECAO'
-    doc_3 = (obj.get('COLECAO') or '').strip()
     # Document #4 - 'COMENTARIO'
     doc_4 = (obj.get('COMENTARIO') or '').strip()
     # Document #5 - 'CONTEXT' (metadatas as document)
@@ -134,6 +132,7 @@ class RagHandler:
     metadatas = {
       'group_id'          : str(group_id),
       'COD_CCN_PUBLICACAO': (obj.get('COD_CCN_PUBLICACAO') or '').strip(),
+      'COLECAO'           : (obj.get('COLECAO') or '').strip(),
       'INSTITUICAO'       : instituicao,
       'BIBLIOTECA_NOME'   : biblioteca,
       'NOME_EDITORA'      : editora,
@@ -144,12 +143,11 @@ class RagHandler:
       # Documents also as metadatas (except by the context document)
       'TITULO_PUBLICACAO' : doc_1,
       'TITULO_RELACIONADO': doc_2,
-      'COLECAO'           : doc_3,
       'COMENTARIO'        : doc_4
     }
 
     # Remove empty documents
-    docs = [doc.strip() for doc in (doc_1, doc_2, doc_3, doc_4, doc_5) if doc.strip()]
+    docs = [doc.strip() for doc in (doc_1, doc_2, doc_4, doc_5) if doc.strip()]
 
     return metadatas, *docs
 
