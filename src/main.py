@@ -149,7 +149,7 @@ class RagHandler:
     }
 
     # Remove empty documents
-    docs = [doc.strip() for doc in (doc_1, doc_2) if doc.strip()]
+    docs = [doc.strip() for doc in (doc_1, doc_2, doc_3, doc_4, doc_5) if doc.strip()]
 
     return metadatas, *docs
 
