@@ -12,7 +12,6 @@ fi
 '''
 
 import chromadb
-from chromadb.utils import embedding_functions
 import ijson
 import time
 from pathlib import Path
@@ -490,18 +489,18 @@ if __name__ == "__main__":
 
 
   '''
-  Parser
+  Parse a JSON file and print its data
   '''
 
   # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
 
-  # Get info about a JSON file
+  # # Get info about a JSON file
   # print(rag_parser.get_json_file_info())
 
-  # Parse a JSON file in streaming mode (see print_json_file_data)
+  # # Parse a JSON file in streaming mode (see print_json_file_data)
   # rag_parser.print_json_file_data(limit = 10)
 
-  # Parse a JSON file and print its data of internal lists
+  # # Parse a JSON file and print its data of internal lists
   # rag_parser.load(limit = 10)
   # print()
   # print(rag_parser.unique_ids)
@@ -519,7 +518,7 @@ if __name__ == "__main__":
   # rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
   #                           client_path        = f'{PROJECT_ROOT}/output',
   #                           collection_name    = 'data',
-  #                           embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
+  #                           embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
 
   # # Parse a JSON file and save its data as a vector database
   # rag_vectordb.load(limit = 10000)
@@ -539,5 +538,5 @@ if __name__ == "__main__":
 
 
 
-  # Init search in terminal mode
+  # # Init search in terminal mode
   # rag.init_search_terminal_mode(n_results = 10)
