@@ -140,6 +140,12 @@ class RagHandler:
       'AREA_CONHECIMENTO' : area_conhecimento,
       'SPINES'            : assuntos_controlados,
       'TERMO_LIVRE'       : termo_livre,
+
+      # Documents also as metadatas (except by the context document)
+      'TITULO_PUBLICACAO' : doc_1,
+      'TITULO_RELACIONADO': doc_2,
+      'COLECAO'           : doc_3,
+      'COMENTARIO'        : doc_4
     }
 
     # Remove empty documents
