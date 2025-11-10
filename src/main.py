@@ -413,9 +413,9 @@ class RagHandler:
     It uses the search method to search in the terminal for relevant documents in the Chroma collection.
 
     Args:
-      n_results (int, optional): The number of results to return. Defaults to 10.
+      n_results (int, optional): The number of results to return.
     '''
-    print(">> RAG Search ~")
+    print(">> RAG Search")
 
     while True:
       query = input("\nType your question (\"quit\" to exit): ").strip()
@@ -483,7 +483,7 @@ if __name__ == "__main__":
   # rag_search = RagHandler(client_path     = f'{PROJECT_ROOT}/output',
   #                         collection_name = 'data')
 
-  # # Search "Journal" in the vector database
+  # # Search "Psicologia" in the vector database
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # # Init search in terminal mode
