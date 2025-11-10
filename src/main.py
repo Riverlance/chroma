@@ -338,7 +338,8 @@ class RagHandler:
 
       # Add content to the collection
       try:
-        self.collection.add(ids = self.unique_ids[i:index_end], metadatas = self.metadatas[i:index_end], documents = self.documents[i:index_end])
+        # .upsert instead of .add to avoid adding the same documents every time
+        self.collection.upsert(ids = self.unique_ids[i:index_end], metadatas = self.metadatas[i:index_end], documents = self.documents[i:index_end])
 
         saved_amount += index_end - i
       except Exception as err:
