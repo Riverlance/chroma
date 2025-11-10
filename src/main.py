@@ -540,7 +540,7 @@ if __name__ == "__main__":
   #                           embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
 
   # # Parse a JSON file and save its data as a vector database
-  # rag_vectordb.load(limit = 10000)
+  # rag_vectordb.load(limit = 1000)
   # rag_vectordb.create_vectordb()
 
 
@@ -553,7 +553,7 @@ if __name__ == "__main__":
   #                         collection_name = 'data')
 
   # # Search "Journal" in the vector database
-  # rag_search.search(query_text = "Journal", n_results = 10)
+  # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
 
 
