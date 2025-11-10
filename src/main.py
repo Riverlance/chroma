@@ -455,15 +455,16 @@ if __name__ == "__main__":
   Parse a JSON file and print its data
   '''
 
-  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
-
   # # Get info about a JSON file
+  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
   # print(rag_parser.get_json_file_info())
 
   # # Parse a JSON file in streaming mode (see print_json_file_data)
+  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
   # rag_parser.print_json_file_data(limit = 10)
 
   # # Parse a JSON file and print its data of internal lists
+  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
   # rag_parser.load(limit = 10)
   # print()
   # print(rag_parser.unique_ids)
@@ -478,12 +479,14 @@ if __name__ == "__main__":
   Parse a JSON file into a vector database
   '''
 
+  # # Parse a JSON file and save its data as a vector database
+  # print(">> Creating embedding function...")
+  # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
+  # print(">> Embedding function has been created successfully.")
   # rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
   #                           client_path        = f'{PROJECT_ROOT}/output',
   #                           collection_name    = 'data',
-  #                           embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2'))
-
-  # # Parse a JSON file and save its data as a vector database
+  #                           embedding_function = embedding_function)
   # rag_vectordb.load(limit = 1000)
   # rag_vectordb.create_vectordb()
 
@@ -493,11 +496,10 @@ if __name__ == "__main__":
   Search in a vector database
   '''
 
-  # rag_search = RagHandler(client_path     = f'{PROJECT_ROOT}/output',
-  #                         collection_name = 'data')
-
   # # Search "Psicologia" in the vector database
+  # rag_search = RagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # # Init search in terminal mode
+  # rag_search = RagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
   # rag_search.init_search_terminal_mode(n_results = 10)
