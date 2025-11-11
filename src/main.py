@@ -92,7 +92,7 @@ class RagHandler(abc.ABC):
 class PersistentRagHandler(RagHandler):
   # region MARK: Self
 
-  def __init__(self, json_filepath: str = None, client_path: str = None):
+  def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
     '''
     Constructor
     '''
@@ -101,8 +101,10 @@ class PersistentRagHandler(RagHandler):
     super().__init__()
 
     # Parameter
-    self.json_filepath = json_filepath
-    self.client_path   = client_path
+    self.json_filepath      = json_filepath
+    self.client_path        = client_path
+    self.collection_name    = collection_name
+    self.embedding_function = embedding_function
 
     # JSON parsing data
     self.unique_ids        = [ ]
@@ -323,7 +325,7 @@ class PersistentRagHandler(RagHandler):
 
     print(f"> Client has been created successfully with path as '{self.client_path}'.\n")
 
-  def create_collection(self, name: str, embedding_function: object = None):
+  def create_collection(self):
     '''
     Create a Chroma collection.
     '''
@@ -334,13 +336,13 @@ class PersistentRagHandler(RagHandler):
 
     # Get existing collection
     try:
-      self.collection = self.client.get_collection(name = name)
-      print(f"> Collection '{name}' has been loaded successfully with {self.collection.count():,} items.\n")
+      self.collection = self.client.get_collection(name = self.collection_name)
+      print(f"> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count():,} items.\n")
 
     # Collection doesn't exist
     except chromadb.errors.NotFoundError:
-      self.collection = self.client.create_collection(name = name, embedding_function = embedding_function)
-      print(f"> Collection '{name}' has been created successfully.\n")
+      self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
+      print(f"> Collection '{self.collection_name}' has been created successfully.\n")
 
   def delete_collection(self):
     '''
@@ -520,9 +522,9 @@ if __name__ == "__main__":
   # print(">> Creating embedding function...")
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
-  # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json', client_path = f'{PROJECT_ROOT}/output')
+  # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json', client_path = f'{PROJECT_ROOT}/output', collection_name = 'data', embedding_function = embedding_function)
   # rag_vectordb.create_client()
-  # rag_vectordb.create_collection(name = 'data', embedding_function = embedding_function)
+  # rag_vectordb.create_collection()
   # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
 
@@ -533,15 +535,15 @@ if __name__ == "__main__":
   '''
 
   # # Search "Psicologia" in the vector database
-  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output')
+  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
   # rag_search.create_client()
-  # rag_search.create_collection(name = 'data')
+  # rag_search.create_collection()
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # Init search in terminal mode
-  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output')
+  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
   # rag_search.create_client()
-  # rag_search.create_collection(name = 'data')
+  # rag_search.create_collection()
   # rag_search.init_search_terminal_mode(n_results = 10)
 
 # endregion
