@@ -92,7 +92,7 @@ class RagHandler(abc.ABC):
 class PersistentRagHandler(RagHandler):
   # region MARK: Self
 
-  def __init__(self, json_filepath: str = None):
+  def __init__(self, json_filepath: str = None, client_path: str = None):
     '''
     Constructor
     '''
@@ -102,6 +102,7 @@ class PersistentRagHandler(RagHandler):
 
     # Parameter
     self.json_filepath = json_filepath
+    self.client_path   = client_path
 
     # JSON parsing data
     self.unique_ids        = [ ]
@@ -310,7 +311,7 @@ class PersistentRagHandler(RagHandler):
 
   # region MARK:.    VectorDB
 
-  def create_client(self, path: str):
+  def create_client(self):
     '''
     Create a Chroma client.
     '''
@@ -318,9 +319,9 @@ class PersistentRagHandler(RagHandler):
     print(">> Creating client...")
 
     # Create a Chroma persistent client
-    self.client = chromadb.PersistentClient(path = path, settings = chromadb.config.Settings(anonymized_telemetry = False))
+    self.client = chromadb.PersistentClient(path = self.client_path, settings = chromadb.config.Settings(anonymized_telemetry = False))
 
-    print(f"> Client has been created successfully with path as '{path}'.\n")
+    print(f"> Client has been created successfully with path as '{self.client_path}'.\n")
 
   def create_collection(self, name: str, embedding_function: object = None):
     '''
@@ -519,8 +520,8 @@ if __name__ == "__main__":
   # print(">> Creating embedding function...")
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
-  # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
-  # rag_vectordb.create_client(path = f'{PROJECT_ROOT}/output')
+  # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json', client_path = f'{PROJECT_ROOT}/output')
+  # rag_vectordb.create_client()
   # rag_vectordb.create_collection(name = 'data', embedding_function = embedding_function)
   # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
@@ -532,14 +533,14 @@ if __name__ == "__main__":
   '''
 
   # # Search "Psicologia" in the vector database
-  # rag_search = PersistentRagHandler()
-  # rag_search.create_client(path = f'{PROJECT_ROOT}/output')
+  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output')
+  # rag_search.create_client()
   # rag_search.create_collection(name = 'data')
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # Init search in terminal mode
-  # rag_search = PersistentRagHandler()
-  # rag_search.create_client(path = f'{PROJECT_ROOT}/output')
+  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output')
+  # rag_search.create_client()
   # rag_search.create_collection(name = 'data')
   # rag_search.init_search_terminal_mode(n_results = 10)
 
