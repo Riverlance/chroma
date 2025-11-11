@@ -45,9 +45,7 @@ class RagHandler:
 
   # region MARK: Self
 
-  def __init__(self, json_filepath: str = None):
-    self.json_filepath = json_filepath
-
+  def __init__(self):
     self.client     = None
     self.collection = None
 
@@ -147,7 +145,7 @@ class RagHandler:
 
     return metadatas, empty_docs_amount, *filled_docs
 
-  def __parse_json_file(self, limit: int = None):
+  def __parse_json_file(self, json_filepath: str = None, limit: int = None):
     '''
     Parse a JSON file in streaming mode (reads without loading entire file into memory).
     It also yields (produces) documents to the generator.
@@ -156,20 +154,20 @@ class RagHandler:
       limit (int, optional): The maximum number of objects to parse.
     '''
 
-    assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+    assert json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     global JSON_PARSING_PRINT_CYCLETIME
 
     parsed_amount = 0
     unique_id     = 0
-    json_info     = self.get_json_file_info()
+    json_info     = self.get_json_file_info(json_filepath = json_filepath)
     time_begin    = time.time()
     time_previous = time_begin # Time of previous batch execution
     time_current  = time_begin # Time of current batch execution
 
     print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)...")
 
-    with open(self.json_filepath, 'rb') as file:
+    with open(json_filepath, 'rb') as file:
       # Parse streaming
 
       '''
@@ -237,7 +235,7 @@ class RagHandler:
         self.metadatas.append(metadatas)
         self.documents.append(doc)
 
-  def get_json_file_info(self):
+  def get_json_file_info(self, json_filepath: str = None):
     '''
     Get information about a JSON file.
 
@@ -246,9 +244,9 @@ class RagHandler:
       mb_size (float): The size of the JSON file in megabytes.
     '''
 
-    assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+    assert json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
-    path    = pathlib.Path(self.json_filepath)
+    path    = pathlib.Path(json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
 
     return path, mb_size
@@ -459,16 +457,16 @@ if __name__ == "__main__":
   '''
 
   # # Get info about a JSON file
-  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
-  # print(rag_parser.get_json_file_info())
+  # rag_parser = RagHandler()
+  # print(rag_parser.get_json_file_info(json_filepath = f'{PROJECT_ROOT}/data/db.json'))
 
   # # Parse a JSON file in streaming mode (see print_json_file_data)
-  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
-  # rag_parser.print_json_file_data(limit = 10)
+  # rag_parser = RagHandler()
+  # rag_parser.print_json_file_data(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 10)
 
   # # Parse a JSON file and print its data of internal lists
-  # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
-  # rag_parser.load(limit = None)
+  # rag_parser = RagHandler()
+  # rag_parser.load(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 10)
   # print()
   # print(rag_parser.unique_ids)
   # print()
@@ -486,10 +484,10 @@ if __name__ == "__main__":
   # print(">> Creating embedding function...")
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
-  # rag_vectordb = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
+  # rag_vectordb = RagHandler()
   # rag_vectordb.create_client(path = f'{PROJECT_ROOT}/output')
   # rag_vectordb.create_collection(name = 'data', embedding_function = embedding_function)
-  # rag_vectordb.load(limit = 250)
+  # rag_vectordb.load(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 250)
   # rag_vectordb.create_vectordb()
 
 
