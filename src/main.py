@@ -19,6 +19,9 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+JSON_PARSING_PRINT_CYCLETIME    = 1 # seconds
+VECTORDB_SAVING_PRINT_CYCLETIME = 1 # seconds
+
 
 
 
@@ -166,6 +169,8 @@ class RagHandler:
 
     assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
+    global JSON_PARSING_PRINT_CYCLETIME
+
     parsed_amount = 0
     unique_id     = 0
     json_info     = self.get_json_file_info()
@@ -213,7 +218,7 @@ class RagHandler:
 
         # Display progress
         time_current = time.time()
-        if time_current - time_previous > 1:
+        if time_current - time_previous > JSON_PARSING_PRINT_CYCLETIME:
           time_previous = time_current
 
           # Print actual progress
@@ -224,7 +229,7 @@ class RagHandler:
         if limit and parsed_amount >= limit:
           break
 
-    print(f"> Parsed '{json_info[0].name}' ({json_info[1]:.2f} MB) in {round(time_current - time_begin)} seconds.\n")
+    print(f"> {parsed_amount:,} objects parsed from '{json_info[0].name}' ({json_info[1]:.2f} MB) in {round(time_current - time_begin, 2):.2f} seconds.\n")
 
   def load(self, *a, **k):
     '''
@@ -339,7 +344,7 @@ class RagHandler:
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
     assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
-    print(f">> Starting to create the vector database...")
+    global VECTORDB_SAVING_PRINT_CYCLETIME
 
     batch_range   = 100 # Number of objects to add at once per batch
     saved_amount  = 0
@@ -347,6 +352,8 @@ class RagHandler:
     time_begin    = time.time()
     time_previous = time_begin # Time of previous batch execution
     time_current  = time_begin # Time of current batch execution
+
+    print(f">> Starting to create the vector database...")
 
     # If empty, stop
     if total_amount == 0:
@@ -368,7 +375,7 @@ class RagHandler:
       # Batch progress
 
       time_current = time.time()
-      if time_current - time_previous > 1:
+      if time_current - time_previous > VECTORDB_SAVING_PRINT_CYCLETIME:
         time_previous  = time_current
         progress_ratio = (saved_amount / total_amount) if total_amount else 0
 
@@ -472,7 +479,7 @@ if __name__ == "__main__":
 
   # # Parse a JSON file and print its data of internal lists
   # rag_parser = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
-  # rag_parser.load(limit = 10)
+  # rag_parser.load(limit = None)
   # print()
   # print(rag_parser.unique_ids)
   # print()
@@ -494,7 +501,7 @@ if __name__ == "__main__":
   #                           client_path        = f'{PROJECT_ROOT}/output',
   #                           collection_name    = 'data',
   #                           embedding_function = embedding_function)
-  # rag_vectordb.load(limit = 200)
+  # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
 
 
