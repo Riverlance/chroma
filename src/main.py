@@ -41,8 +41,8 @@ class RagHandler(abc.ABC):
   __ERROR_MESSAGE = {
     RAG_ERROR               : "Sorry, not possible.",
     RAG_ERROR_NOJSONFILEPATH: "JSON file path is not provided.",
-    RAG_ERROR_NOCLIENT      : "Client is not created yet. Call create_client(...) first.",
-    RAG_ERROR_NOCOLLECTION  : "Collection is not created yet. Call create_collection(...) first.",
+    RAG_ERROR_NOCLIENT      : "Client is not created yet.",
+    RAG_ERROR_NOCOLLECTION  : "Collection is not created yet.",
   }
 
 
@@ -66,10 +66,6 @@ class RagHandler(abc.ABC):
     # Vector database
     self.client     = None
     self.collection = None
-
-    # Attempt to init
-    self.create_client()
-    self.create_collection()
 
   @staticmethod
   def error(id) -> str:
@@ -312,6 +308,12 @@ class PersistentRagHandler(RagHandler):
     # Call the inherited constructor
     super().__init__(json_filepath = json_filepath)
 
+    # Attempt to init
+    if self.client_path:
+      self.create_client()
+    if self.collection_name:
+      self.create_collection()
+
   # endregion
 
 
@@ -325,9 +327,6 @@ class PersistentRagHandler(RagHandler):
     Create a Chroma client.
     '''
 
-    if not self.client_path:
-      return
-
     print(">> Creating client...")
 
     # Create a Chroma persistent client
@@ -339,9 +338,6 @@ class PersistentRagHandler(RagHandler):
     '''
     Create a Chroma collection.
     '''
-
-    if not self.collection_name:
-      return
 
     assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
 
