@@ -58,7 +58,7 @@ class RagHandler(abc.ABC):
     self.collection = None
 
   @staticmethod
-  def error(id):
+  def error(id) -> str:
     '''
     Get error message.
 
@@ -71,7 +71,7 @@ class RagHandler(abc.ABC):
 
     return RagHandler.__ERROR_MESSAGE[id]
 
-  def has_data(self):
+  def has_data(self) -> bool:
     '''
     Check if collection has data.
 
@@ -266,7 +266,7 @@ class PersistentRagHandler(RagHandler):
         self.metadatas.append(metadatas)
         self.documents.append(doc)
 
-  def get_json_file_info(self):
+  def get_json_file_info(self) -> tuple:
     '''
     Get information about a JSON file.
 
@@ -420,8 +420,8 @@ class PersistentRagHandler(RagHandler):
     It needs a vector database to be already created and filled with the embeddings of the documents.
 
     Args:
-      query_text (str): The query text to search for.
-      n_results (int, optional): The number of results to return.
+      query_text (str): Query text to search for.
+      n_results (int, optional): Number of results.
     '''
 
     assert self.collection, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTION)
@@ -457,7 +457,7 @@ class PersistentRagHandler(RagHandler):
     It uses the search method to search in the terminal for relevant documents in the Chroma collection.
 
     Args:
-      n_results (int, optional): The number of results to return.
+      n_results (int, optional): Number of results.
     '''
 
     print(">> RAG Search")
