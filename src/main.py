@@ -90,7 +90,7 @@ class RagHandler(abc.ABC):
 # region MARK: PersistentRagHandler
 
 class PersistentRagHandler(RagHandler):
-  # region MARK: Self
+  # region MARK:.  Self
 
   def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
     '''
@@ -203,9 +203,8 @@ class PersistentRagHandler(RagHandler):
     json_info     = self.get_json_file_info()
     time_begin    = time.time()
     time_previous = time_begin # Time of previous batch execution
-    time_current  = time_begin # Time of current batch execution
 
-    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:.2f} MB)...")
+    print(f">> Starting to parse '{json_info[0].name}' ({json_info[1]:,.2f} MB)...")
 
     with open(self.json_filepath, 'rb') as file:
       # Parse streaming
@@ -244,7 +243,7 @@ class PersistentRagHandler(RagHandler):
         yield unique_ids, metadatas, docs
 
         # Display progress
-        time_current = time.time()
+        time_current = time.time() # Time of current batch execution
         if time_current - time_previous > JSON_PARSING_PRINT_CYCLETIME:
           time_previous = time_current
 
@@ -256,7 +255,8 @@ class PersistentRagHandler(RagHandler):
         if limit and parsed_amount >= limit:
           break
 
-    print(f"> {parsed_amount:,} objects parsed from '{json_info[0].name}' ({json_info[1]:.2f} MB) in {round(time_current - time_begin, 2):.2f} seconds.\n")
+    time_current = time_current or time.time() # Time of current batch execution
+    print(f"> {parsed_amount:,} objects parsed from '{json_info[0].name}' ({json_info[1]:,.2f} MB) in {round(time_current - time_begin, 2):,.2f} seconds.\n")
 
   def load(self, *a, **k):
     '''
@@ -415,7 +415,7 @@ class PersistentRagHandler(RagHandler):
         print(f"> Saved {saved_amount:,} documents in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%).")
 
     # Print last progress
-    print(f"> Saved {saved_amount:,} documents (of {saved_amount + self.empty_docs_amount:,}, ignoring {self.empty_docs_amount:,} empty documents) in {round(time_current - time_begin, 2):.2f} seconds.\n")
+    print(f"> Saved {saved_amount:,} documents (of {saved_amount + self.empty_docs_amount:,}, ignoring {self.empty_docs_amount:,} empty documents) in {round(time_current - time_begin, 2):,.2f} seconds.\n")
 
   # endregion
 
