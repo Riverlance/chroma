@@ -13,11 +13,11 @@ fi
 
 import chromadb
 import ijson
+import pathlib
 import time
-from pathlib import Path
 # import traceback # Debugging (t.print_stack())
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = pathlib.Path(__file__).parent.parent
 
 JSON_PARSING_PRINT_CYCLETIME    = 1 # seconds
 VECTORDB_SAVING_PRINT_CYCLETIME = 1 # seconds
@@ -253,13 +253,13 @@ class RagHandler:
     Get information about a JSON file.
 
     Returns:
-      path (Path): The path to the JSON file.
+      path (pathlib.Path): The path to the JSON file.
       mb_size (float): The size of the JSON file in megabytes.
     '''
 
     assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
-    path    = Path(self.json_filepath)
+    path    = pathlib.Path(self.json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
 
     return path, mb_size
