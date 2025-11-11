@@ -112,6 +112,12 @@ class PersistentRagHandler(RagHandler):
     self.documents         = [ ]
     self.empty_docs_amount = 0
 
+    if client_path:
+      self.create_client()
+
+    if collection_name:
+      self.create_collection()
+
   # endregion
 
 
@@ -523,8 +529,6 @@ if __name__ == "__main__":
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
   # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json', client_path = f'{PROJECT_ROOT}/output', collection_name = 'data', embedding_function = embedding_function)
-  # rag_vectordb.create_client()
-  # rag_vectordb.create_collection()
   # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
 
@@ -536,14 +540,10 @@ if __name__ == "__main__":
 
   # # Search "Psicologia" in the vector database
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
-  # rag_search.create_client()
-  # rag_search.create_collection()
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # Init search in terminal mode
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
-  # rag_search.create_client()
-  # rag_search.create_collection()
   # rag_search.init_search_terminal_mode(n_results = 10)
 
 # endregion
