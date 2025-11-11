@@ -12,6 +12,7 @@ fi
 '''
 
 import abc
+import asyncio
 import chromadb
 import ijson
 import pathlib
@@ -286,6 +287,32 @@ class RagHandler(abc.ABC):
 
   # endregion
 
+
+
+  # region MARK:.  Chroma
+
+  # region MARK:.    VectorDB
+
+  @abc.abstractmethod
+  def create_client(self):
+    '''
+    Create a Chroma client.
+    '''
+
+    pass
+
+  @abc.abstractmethod
+  def create_collection(self):
+    '''
+    Create a Chroma collection.
+    '''
+
+    pass
+
+  # endregion
+
+  # endregion
+
 # endregion
 
 
@@ -296,10 +323,6 @@ class PersistentRagHandler(RagHandler):
   # region MARK:.  Self
 
   def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
-    '''
-    Constructor
-    '''
-
     # Parameter
     self.client_path        = client_path
     self.collection_name    = collection_name
@@ -323,10 +346,6 @@ class PersistentRagHandler(RagHandler):
   # region MARK:.    VectorDB
 
   def create_client(self):
-    '''
-    Create a Chroma client.
-    '''
-
     print(">> Creating client...")
 
     # Create a Chroma persistent client
@@ -335,10 +354,6 @@ class PersistentRagHandler(RagHandler):
     print(f"> Client has been created successfully with path as '{self.client_path}'.\n")
 
   def create_collection(self):
-    '''
-    Create a Chroma collection.
-    '''
-
     assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
 
     print(">> Creating collection...")
@@ -498,11 +513,41 @@ class PersistentRagHandler(RagHandler):
 
 
 
+# region MARK: AsyncHttpRagHandler
+
+class AsyncHttpRagHandler(RagHandler):
+  # region MARK:.  Self
+
+  async def __init__():
+    pass
+
+  # endregion
+
+
+
+  # region MARK:.  Chroma
+
+  # region MARK:.    VectorDB
+
+  async def create_client(self):
+    pass
+
+  async def create_collection(self):
+    pass
+
+  # endregion
+
+  # endregion
+
+# endregion
+
+
+
 
 
 # region MARK: Main
 
-if __name__ == "__main__":
+async def main():
   '''
   Parse a JSON file and print its data
   '''
@@ -552,5 +597,8 @@ if __name__ == "__main__":
   # # Init search in terminal mode
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
   # rag_search.init_search_terminal_mode(n_results = 10)
+
+if __name__ == "__main__":
+  asyncio.run(main())
 
 # endregion
