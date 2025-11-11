@@ -49,11 +49,21 @@ class RagHandler(abc.ABC):
 
   # region MARK:.  Self
 
-  def __init__(self):
+  def __init__(self, json_filepath: str = None):
     '''
     Constructor
     '''
 
+    # Parameter
+    self.json_filepath = json_filepath
+
+    # JSON parsing data
+    self.unique_ids        = [ ]
+    self.metadatas         = [ ]
+    self.documents         = [ ]
+    self.empty_docs_amount = 0
+
+    # Vector database
     self.client     = None
     self.collection = None
 
@@ -80,43 +90,6 @@ class RagHandler(abc.ABC):
     '''
 
     return self.collection and self.collection.count()
-
-  # endregion
-
-# endregion
-
-
-
-# region MARK: PersistentRagHandler
-
-class PersistentRagHandler(RagHandler):
-  # region MARK:.  Self
-
-  def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
-    '''
-    Constructor
-    '''
-
-    # Calls the inherited constructor
-    super().__init__()
-
-    # Parameter
-    self.json_filepath      = json_filepath
-    self.client_path        = client_path
-    self.collection_name    = collection_name
-    self.embedding_function = embedding_function
-
-    # JSON parsing data
-    self.unique_ids        = [ ]
-    self.metadatas         = [ ]
-    self.documents         = [ ]
-    self.empty_docs_amount = 0
-
-    if client_path:
-      self.create_client()
-
-    if collection_name:
-      self.create_collection()
 
   # endregion
 
@@ -310,6 +283,36 @@ class PersistentRagHandler(RagHandler):
         print(f"> Document #{id}\n{doc}\n")
 
       print('--- ' * 7 + '\n')
+
+  # endregion
+
+# endregion
+
+
+
+# region MARK: PersistentRagHandler
+
+class PersistentRagHandler(RagHandler):
+  # region MARK:.  Self
+
+  def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
+    '''
+    Constructor
+    '''
+
+    # Call the inherited constructor
+    super().__init__(json_filepath = json_filepath)
+
+    # Parameter
+    self.client_path        = client_path
+    self.collection_name    = collection_name
+    self.embedding_function = embedding_function
+
+    if client_path:
+      self.create_client()
+
+    if collection_name:
+      self.create_collection()
 
   # endregion
 
