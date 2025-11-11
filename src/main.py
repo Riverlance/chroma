@@ -67,6 +67,10 @@ class RagHandler(abc.ABC):
     self.client     = None
     self.collection = None
 
+    # Attempt to init
+    self.create_client()
+    self.create_collection()
+
   @staticmethod
   def error(id) -> str:
     '''
@@ -300,19 +304,13 @@ class PersistentRagHandler(RagHandler):
     Constructor
     '''
 
-    # Call the inherited constructor
-    super().__init__(json_filepath = json_filepath)
-
     # Parameter
     self.client_path        = client_path
     self.collection_name    = collection_name
     self.embedding_function = embedding_function
 
-    if client_path:
-      self.create_client()
-
-    if collection_name:
-      self.create_collection()
+    # Call the inherited constructor
+    super().__init__(json_filepath = json_filepath)
 
   # endregion
 
@@ -327,6 +325,9 @@ class PersistentRagHandler(RagHandler):
     Create a Chroma client.
     '''
 
+    if not self.client_path:
+      return
+
     print(">> Creating client...")
 
     # Create a Chroma persistent client
@@ -338,6 +339,9 @@ class PersistentRagHandler(RagHandler):
     '''
     Create a Chroma collection.
     '''
+
+    if not self.collection_name:
+      return
 
     assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
 
