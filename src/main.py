@@ -451,6 +451,8 @@ class RagHandler:
 
 
 
+# region MARK: Main
+
 if __name__ == "__main__":
   '''
   Parse a JSON file and print its data
@@ -460,7 +462,7 @@ if __name__ == "__main__":
   # rag_parser = RagHandler()
   # print(rag_parser.get_json_file_info(json_filepath = f'{PROJECT_ROOT}/data/db.json'))
 
-  # # Parse a JSON file in streaming mode (see print_json_file_data)
+  # # Parse a JSON file in streaming mode
   # rag_parser = RagHandler()
   # rag_parser.print_json_file_data(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 10)
 
@@ -507,3 +509,5 @@ if __name__ == "__main__":
   # rag_search.create_client(path = f'{PROJECT_ROOT}/output')
   # rag_search.create_collection(name = 'data')
   # rag_search.init_search_terminal_mode(n_results = 10)
+
+# endregion
