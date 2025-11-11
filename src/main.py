@@ -32,7 +32,7 @@ RAG_ERROR_NOJSONFILEPATH = 1
 RAG_ERROR_NOCLIENT       = 1
 RAG_ERROR_NOCOLLECTION   = 2
 
-class RagHandler:
+class PersistentRagHandler:
   # Error messages
   __ERROR_MESSAGES = {
     RAG_ERROR               : "Sorry, not possible.",
@@ -76,7 +76,7 @@ class RagHandler:
       str: Error message.
     '''
 
-    return RagHandler.__ERROR_MESSAGES[id]
+    return PersistentRagHandler.__ERROR_MESSAGES[id]
 
   # endregion
 
@@ -154,7 +154,7 @@ class RagHandler:
       limit (int, optional): The maximum number of objects to parse.
     '''
 
-    assert json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+    assert json_filepath, PersistentRagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     global JSON_PARSING_PRINT_CYCLETIME
 
@@ -244,7 +244,7 @@ class RagHandler:
       mb_size (float): The size of the JSON file in megabytes.
     '''
 
-    assert json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+    assert json_filepath, PersistentRagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     path    = pathlib.Path(json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
@@ -296,7 +296,7 @@ class RagHandler:
     Create a Chroma collection.
     '''
 
-    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
 
     print(">> Creating collection...")
 
@@ -315,7 +315,7 @@ class RagHandler:
     Delete the Chroma collection.
     '''
 
-    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
 
     for collection in self.client.list_collections():
       try:
@@ -328,8 +328,8 @@ class RagHandler:
     Create a Chroma vector database.
     '''
 
-    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
-    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
+    assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.collection, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTION)
 
     global VECTORDB_SAVING_PRINT_CYCLETIME
 
@@ -393,7 +393,7 @@ class RagHandler:
       n_results (int, optional): The number of results to return.
     '''
 
-    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
+    assert self.collection, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTION)
 
     print(f"\n>> Requested query: \"{query_text}\"")
 
@@ -459,15 +459,15 @@ if __name__ == "__main__":
   '''
 
   # # Get info about a JSON file
-  # rag_parser = RagHandler()
+  # rag_parser = PersistentRagHandler()
   # print(rag_parser.get_json_file_info(json_filepath = f'{PROJECT_ROOT}/data/db.json'))
 
   # # Parse a JSON file in streaming mode
-  # rag_parser = RagHandler()
+  # rag_parser = PersistentRagHandler()
   # rag_parser.print_json_file_data(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 10)
 
   # # Parse a JSON file and print its data of internal lists
-  # rag_parser = RagHandler()
+  # rag_parser = PersistentRagHandler()
   # rag_parser.load(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 10)
   # print()
   # print(rag_parser.unique_ids)
@@ -486,7 +486,7 @@ if __name__ == "__main__":
   # print(">> Creating embedding function...")
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
-  # rag_vectordb = RagHandler()
+  # rag_vectordb = PersistentRagHandler()
   # rag_vectordb.create_client(path = f'{PROJECT_ROOT}/output')
   # rag_vectordb.create_collection(name = 'data', embedding_function = embedding_function)
   # rag_vectordb.load(json_filepath = f'{PROJECT_ROOT}/data/db.json', limit = 250)
@@ -499,13 +499,13 @@ if __name__ == "__main__":
   '''
 
   # # Search "Psicologia" in the vector database
-  # rag_search = RagHandler()
+  # rag_search = PersistentRagHandler()
   # rag_search.create_client(path = f'{PROJECT_ROOT}/output')
   # rag_search.create_collection(name = 'data')
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # Init search in terminal mode
-  # rag_search = RagHandler()
+  # rag_search = PersistentRagHandler()
   # rag_search.create_client(path = f'{PROJECT_ROOT}/output')
   # rag_search.create_collection(name = 'data')
   # rag_search.init_search_terminal_mode(n_results = 10)
