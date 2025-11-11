@@ -11,6 +11,7 @@ if [ -f ".env" ]; then
 fi
 '''
 
+import abc
 import chromadb
 import ijson
 import pathlib
@@ -19,12 +20,9 @@ import time
 
 PROJECT_ROOT = pathlib.Path(__file__).parent.parent
 
+# Constant
 JSON_PARSING_PRINT_CYCLETIME    = 1 # seconds
 VECTORDB_SAVING_PRINT_CYCLETIME = 1 # seconds
-
-
-
-
 
 # Error codes
 RAG_ERROR                = 0
@@ -32,7 +30,13 @@ RAG_ERROR_NOJSONFILEPATH = 1
 RAG_ERROR_NOCLIENT       = 1
 RAG_ERROR_NOCOLLECTION   = 2
 
-class PersistentRagHandler:
+
+
+
+
+# region MARK: RagHandler
+
+class RagHandler(abc.ABC):
   # Error messages
   __ERROR_MESSAGES = {
     RAG_ERROR               : "Sorry, not possible.",
@@ -46,23 +50,10 @@ class PersistentRagHandler:
   # region MARK: Self
 
   def __init__(self):
+    '''Constructor'''
+
     self.client     = None
     self.collection = None
-
-    # JSON parsing data
-    self.unique_ids        = [ ]
-    self.metadatas         = [ ]
-    self.documents         = [ ]
-    self.empty_docs_amount = 0
-
-  def has_data(self):
-    '''
-    Check if collection has data.
-
-    Returns:
-      bool: `True` if collection has data, `False` otherwise.
-    '''
-    return self.collection and self.collection.count()
 
   @staticmethod
   def error(id):
@@ -76,7 +67,39 @@ class PersistentRagHandler:
       str: Error message.
     '''
 
-    return PersistentRagHandler.__ERROR_MESSAGES[id]
+    return RagHandler.__ERROR_MESSAGES[id]
+
+  def has_data(self):
+    '''
+    Check if collection has data.
+
+    Returns:
+      bool: `True` if collection has data, `False` otherwise.
+    '''
+    return self.collection and self.collection.count()
+
+  # endregion
+
+# endregion
+
+
+
+# region MARK: PersistentRagHandler
+
+class PersistentRagHandler(RagHandler):
+  # region MARK: Self
+
+  def __init__(self):
+    '''Constructor'''
+
+    # Calls the inherited constructor
+    super().__init__()
+
+    # JSON parsing data
+    self.unique_ids        = [ ]
+    self.metadatas         = [ ]
+    self.documents         = [ ]
+    self.empty_docs_amount = 0
 
   # endregion
 
@@ -446,6 +469,8 @@ class PersistentRagHandler:
   # endregion
 
   # endregion
+
+# endregion
 
 
 
