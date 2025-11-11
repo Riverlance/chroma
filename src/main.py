@@ -24,7 +24,7 @@ PROJECT_ROOT = pathlib.Path(__file__).parent.parent
 JSON_PARSING_PRINT_CYCLETIME    = 1 # seconds
 VECTORDB_SAVING_PRINT_CYCLETIME = 1 # seconds
 
-# Error codes
+# Error code
 RAG_ERROR                = 0
 RAG_ERROR_NOJSONFILEPATH = 1
 RAG_ERROR_NOCLIENT       = 1
@@ -37,8 +37,8 @@ RAG_ERROR_NOCOLLECTION   = 2
 # region MARK: RagHandler
 
 class RagHandler(abc.ABC):
-  # Error messages
-  __ERROR_MESSAGES = {
+  # Error message
+  __ERROR_MESSAGE = {
     RAG_ERROR               : "Sorry, not possible.",
     RAG_ERROR_NOJSONFILEPATH: "JSON file path is not provided.",
     RAG_ERROR_NOCLIENT      : "Client is not created yet. Call create_client(...) first.",
@@ -47,10 +47,12 @@ class RagHandler(abc.ABC):
 
 
 
-  # region MARK: Self
+  # region MARK:.  Self
 
   def __init__(self):
-    '''Constructor'''
+    '''
+    Constructor
+    '''
 
     self.client     = None
     self.collection = None
@@ -67,7 +69,7 @@ class RagHandler(abc.ABC):
       str: Error message.
     '''
 
-    return RagHandler.__ERROR_MESSAGES[id]
+    return RagHandler.__ERROR_MESSAGE[id]
 
   def has_data(self):
     '''
@@ -76,6 +78,7 @@ class RagHandler(abc.ABC):
     Returns:
       bool: `True` if collection has data, `False` otherwise.
     '''
+
     return self.collection and self.collection.count()
 
   # endregion
@@ -90,7 +93,9 @@ class PersistentRagHandler(RagHandler):
   # region MARK: Self
 
   def __init__(self):
-    '''Constructor'''
+    '''
+    Constructor
+    '''
 
     # Calls the inherited constructor
     super().__init__()
@@ -105,7 +110,7 @@ class PersistentRagHandler(RagHandler):
 
 
 
-  # region MARK: JSON parsing
+  # region MARK:.  JSON parsing
 
   def __parse_object(self, obj: dict) -> tuple:
     '''
@@ -298,9 +303,9 @@ class PersistentRagHandler(RagHandler):
 
 
 
-  # region MARK: Chroma
+  # region MARK:.  Chroma
 
-  # region MARK: VectorDB
+  # region MARK:.    VectorDB
 
   def create_client(self, path: str):
     '''
@@ -404,7 +409,7 @@ class PersistentRagHandler(RagHandler):
 
 
 
-  # region MARK: Search
+  # region MARK:.    Search
 
   def search(self, query_text: str, n_results: int = 10):
     '''
