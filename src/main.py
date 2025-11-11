@@ -45,9 +45,8 @@ class RagHandler:
 
   # region MARK: Self
 
-  def __init__(self, json_filepath: str = None, embedding_function: object = None):
-    self.json_filepath      = json_filepath
-    self.embedding_function = embedding_function
+  def __init__(self, json_filepath: str = None):
+    self.json_filepath = json_filepath
 
     self.client     = None
     self.collection = None
@@ -294,7 +293,7 @@ class RagHandler:
 
     print(f"> Client has been created successfully with path as '{path}'.\n")
 
-  def create_collection(self, name: str):
+  def create_collection(self, name: str, embedding_function: object = None):
     '''
     Create a Chroma collection.
     '''
@@ -310,7 +309,7 @@ class RagHandler:
 
     # Collection doesn't exist
     except chromadb.errors.NotFoundError:
-      self.collection = self.client.create_collection(name = name, embedding_function = self.embedding_function)
+      self.collection = self.client.create_collection(name = name, embedding_function = embedding_function)
       print(f"> Collection '{name}' has been created successfully.\n")
 
   def delete_collection(self):
@@ -487,10 +486,9 @@ if __name__ == "__main__":
   # print(">> Creating embedding function...")
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
-  # rag_vectordb = RagHandler(json_filepath      = f'{PROJECT_ROOT}/data/db.json',
-  #                           embedding_function = embedding_function)
+  # rag_vectordb = RagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json')
   # rag_vectordb.create_client(path = f'{PROJECT_ROOT}/output')
-  # rag_vectordb.create_collection(name = 'data')
+  # rag_vectordb.create_collection(name = 'data', embedding_function = embedding_function)
   # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
 
