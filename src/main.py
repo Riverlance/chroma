@@ -101,7 +101,7 @@ class RagHandler(abc.ABC):
     Initialize the handler.
     '''
 
-    pass
+    return self
 
   # endregion
 
@@ -348,6 +348,8 @@ class PersistentRagHandler(RagHandler):
     if self.collection_name:
       self.create_collection()
 
+    return self
+
   # endregion
 
 
@@ -534,12 +536,20 @@ class AsyncHttpRagHandler(RagHandler):
     self.client_host = client_host
     self.client_port = client_port
 
+    # Prepare initialization (not executed yet)
+    self._init_coroutine = self.init()
+
   async def init(self):
     # Attempt to init
     if self.client_host and self.client_port:
       await self.create_client()
     if self.collection_name:
       await self.create_collection()
+
+    return self
+
+  def __await__(self):
+    return self._init_coroutine.__await__() # It makes `await AsyncHttpRagHandler(...)` to be possible
 
   # endregion
 
@@ -634,6 +644,19 @@ async def main():
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
   # rag_search.init()
   # rag_search.init_search_terminal_mode(n_results = 10)
+
+
+
+  '''
+  Search in a vector database via HTTP
+  '''
+
+  # Todo
+  # rag_http_search = await AsyncHttpRagHandler(client_host = 'localhost', client_port = 8000, collection_name = 'data')
+  # print(rag_http_search.client)
+  # print(rag_http_search.collection)
+
+
 
 if __name__ == "__main__":
   asyncio.run(main())
