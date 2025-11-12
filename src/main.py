@@ -370,15 +370,11 @@ class PersistentRagHandler(RagHandler):
 
     print(">> Creating collection...")
 
-    # Get existing collection
-    try:
-      self.collection = self.client.get_collection(name = self.collection_name)
-      print(f"> Collection '{self.collection_name}' has been loaded successfully with {self.collection.count():,} items.\n")
+    self.collection = self.client.get_or_create_collection(name = self.collection_name, embedding_function = self.embedding_function)
+    amount          = self.collection.count()
+    amount_txt      = f" with {amount:,} items" if amount else ''
 
-    # Collection doesn't exist
-    except chromadb.errors.NotFoundError:
-      self.collection = self.client.create_collection(name = self.collection_name, embedding_function = self.embedding_function)
-      print(f"> Collection '{self.collection_name}' has been created successfully.\n")
+    print(f"> Collection '{self.collection_name}' has been created successfully{amount_txt}.\n")
 
   def delete_collection(self):
     '''
@@ -567,15 +563,11 @@ class AsyncHttpRagHandler(RagHandler):
 
     print(">> Creating collection...")
 
-    # Get existing collection
-    try:
-      self.collection = await self.client.get_collection(name = self.collection_name)
-      print(f"> Collection '{self.collection_name}' has been loaded successfully with {await self.collection.count():,} items.\n")
+    self.collection = await self.client.get_or_create_collection(name = self.collection_name)
+    amount          = await self.collection.count()
+    amount_txt      = f" with {amount:,} items" if amount else ''
 
-    # Collection doesn't exist
-    except chromadb.errors.NotFoundError:
-      self.collection = await self.client.create_collection(name = self.collection_name)
-      print(f"> Collection '{self.collection_name}' has been created successfully.\n")
+    print(f"> Collection '{self.collection_name}' has been created successfully{amount_txt}.\n")
 
   # endregion
 
