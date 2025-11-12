@@ -594,6 +594,12 @@ class AsyncHttpRagHandler(RagHandler):
 
   # endregion
 
+
+
+  # region MARK:.    Search
+
+  # endregion
+
   # endregion
 
 # endregion
@@ -658,7 +664,7 @@ async def main():
 
 
   '''
-  Search in a vector database via HTTP
+  Search in a vector database via HTTP (needs the Chroma server running: `chroma run --path ./output`)
   '''
 
   # # Todo
