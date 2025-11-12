@@ -312,6 +312,14 @@ class RagHandler(abc.ABC):
 
     pass
 
+  @abc.abstractmethod
+  def delete_collection(self):
+    '''
+    Delete the Chroma collection.
+    '''
+
+    pass
+
   # endregion
 
   # endregion
@@ -374,10 +382,6 @@ class PersistentRagHandler(RagHandler):
     print(f"> Collection '{self.collection_name}' has been created successfully{amount_txt}.\n")
 
   def delete_collection(self):
-    '''
-    Delete the Chroma collection.
-    '''
-
     assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
     for collection in self.client.list_collections():
@@ -574,6 +578,15 @@ class AsyncHttpRagHandler(RagHandler):
 
     print(f"> Collection '{self.collection_name}' has been created successfully{amount_txt}.\n")
 
+  async def delete_collection(self):
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+
+    for collection in self.client.list_collections():
+      try:
+        await self.client.delete_collection(name = collection.name)
+      except:
+        pass
+
   # endregion
 
   # endregion
@@ -643,7 +656,7 @@ async def main():
   Search in a vector database via HTTP
   '''
 
-  # Todo
+  # # Todo
   # rag_http_search = await AsyncHttpRagHandler(client_host = 'localhost', client_port = 8000, collection_name = 'data')
   # print(rag_http_search.client)
   # print(rag_http_search.collection)
