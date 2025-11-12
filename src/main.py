@@ -9,6 +9,11 @@ To load parameters from .env, add the following content to the bottom of your `v
 if [ -f ".env" ]; then
   export $(grep -v '^#' .env | xargs)
 fi
+
+
+
+Future update:
+- Langchain to produce embeddings (OpenAI charges per million tokens, so using local models is preferred for now)
 '''
 
 import abc
