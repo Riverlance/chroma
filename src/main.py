@@ -95,14 +95,6 @@ class RagHandler(abc.ABC):
 
     return self.collection and self.collection.count()
 
-  @abc.abstractmethod
-  def init(self):
-    '''
-    Initialize the handler.
-    '''
-
-    return self
-
   # endregion
 
 
@@ -340,6 +332,9 @@ class PersistentRagHandler(RagHandler):
     # Parameter
     self.client_path        = client_path
     self.embedding_function = embedding_function
+
+    # Initialize
+    self.init()
 
   def init(self):
     # Attempt to init
@@ -625,7 +620,6 @@ async def main():
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
   # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json', client_path = f'{PROJECT_ROOT}/output', collection_name = 'data', embedding_function = embedding_function)
-  # rag_vectordb.init()
   # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
 
@@ -637,12 +631,10 @@ async def main():
 
   # # Search "Psicologia" in the vector database
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
-  # rag_search.init()
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # Init search in terminal mode
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
-  # rag_search.init()
   # rag_search.init_search_terminal_mode(n_results = 10)
 
 
