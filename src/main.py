@@ -26,10 +26,11 @@ JSON_PARSING_PRINT_CYCLETIME    = 1 # seconds
 VECTORDB_SAVING_PRINT_CYCLETIME = 1 # seconds
 
 # Error code
-RAG_ERROR                = 0
-RAG_ERROR_NOJSONFILEPATH = 1
-RAG_ERROR_NOCLIENT       = 1
-RAG_ERROR_NOCOLLECTION   = 2
+RAG_ERROR                  = 0
+RAG_ERROR_NOJSONFILEPATH   = 1
+RAG_ERROR_NOCLIENT         = 2
+RAG_ERROR_NOCOLLECTION     = 3
+RAG_ERROR_NOCOLLECTIONNAME = 4
 
 
 
@@ -40,23 +41,25 @@ RAG_ERROR_NOCOLLECTION   = 2
 class RagHandler(abc.ABC):
   # Error message
   __ERROR_MESSAGE = {
-    RAG_ERROR               : "Sorry, not possible.",
-    RAG_ERROR_NOJSONFILEPATH: "JSON file path is not provided.",
-    RAG_ERROR_NOCLIENT      : "Client is not created yet.",
-    RAG_ERROR_NOCOLLECTION  : "Collection is not created yet.",
+    RAG_ERROR                 : "Sorry, not possible.",
+    RAG_ERROR_NOJSONFILEPATH  : "JSON file path is not provided.",
+    RAG_ERROR_NOCLIENT        : "Client is not created yet.",
+    RAG_ERROR_NOCOLLECTION    : "Collection is not created yet.",
+    RAG_ERROR_NOCOLLECTIONNAME: "Collection name is not provided."
   }
 
 
 
   # region MARK:.  Self
 
-  def __init__(self, json_filepath: str = None):
+  def __init__(self, json_filepath: str = None, collection_name: str = None):
     '''
     Constructor
     '''
 
     # Parameter
-    self.json_filepath = json_filepath
+    self.json_filepath   = json_filepath
+    self.collection_name = collection_name
 
     # JSON parsing data
     self.unique_ids        = [ ]
@@ -91,6 +94,14 @@ class RagHandler(abc.ABC):
     '''
 
     return self.collection and self.collection.count()
+
+  @abc.abstractmethod
+  def init(self):
+    '''
+    Initialize the handler.
+    '''
+
+    pass
 
   # endregion
 
@@ -168,7 +179,7 @@ class RagHandler(abc.ABC):
       limit (int, optional): The maximum number of objects to parse.
     '''
 
-    assert self.json_filepath, PersistentRagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+    assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     global JSON_PARSING_PRINT_CYCLETIME
 
@@ -258,7 +269,7 @@ class RagHandler(abc.ABC):
       mb_size (float): The size of the JSON file in megabytes.
     '''
 
-    assert self.json_filepath, PersistentRagHandler.error(RAG_ERROR_NOJSONFILEPATH)
+    assert self.json_filepath, RagHandler.error(RAG_ERROR_NOJSONFILEPATH)
 
     path    = pathlib.Path(self.json_filepath)
     mb_size = round(path.stat().st_size / (1024 ** 2), 2)
@@ -323,14 +334,14 @@ class PersistentRagHandler(RagHandler):
   # region MARK:.  Self
 
   def __init__(self, json_filepath: str = None, client_path: str = None, collection_name: str = None, embedding_function: object = None):
+    # Call the inherited constructor
+    super().__init__(json_filepath = json_filepath, collection_name = collection_name)
+
     # Parameter
     self.client_path        = client_path
-    self.collection_name    = collection_name
     self.embedding_function = embedding_function
 
-    # Call the inherited constructor
-    super().__init__(json_filepath = json_filepath)
-
+  def init(self):
     # Attempt to init
     if self.client_path:
       self.create_client()
@@ -355,6 +366,7 @@ class PersistentRagHandler(RagHandler):
 
   def create_collection(self):
     assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.collection_name, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTIONNAME)
 
     print(">> Creating collection...")
 
@@ -518,8 +530,20 @@ class PersistentRagHandler(RagHandler):
 class AsyncHttpRagHandler(RagHandler):
   # region MARK:.  Self
 
-  async def __init__():
-    pass
+  def __init__(self, json_filepath: str = None, client_host: str = 'localhost', client_port: int = 8000, collection_name: str = None):
+    # Call the inherited constructor
+    super().__init__(json_filepath = json_filepath, collection_name = collection_name)
+
+    # Parameter
+    self.client_host = client_host
+    self.client_port = client_port
+
+  async def init(self):
+    # Attempt to init
+    if self.client_host and self.client_port:
+      await self.create_client()
+    if self.collection_name:
+      await self.create_collection()
 
   # endregion
 
@@ -530,10 +554,28 @@ class AsyncHttpRagHandler(RagHandler):
   # region MARK:.    VectorDB
 
   async def create_client(self):
-    pass
+    print(">> Creating client...")
+
+    # Create a Chroma async HTTP client
+    self.client = await chromadb.AsyncHttpClient(host = self.client_host, port = self.client_port, settings = chromadb.config.Settings(anonymized_telemetry = False))
+
+    print(f"> Client has been created successfully with host as '{self.client_host}' and port as '{self.client_port}'.\n")
 
   async def create_collection(self):
-    pass
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.collection_name, RagHandler.error(RAG_ERROR_NOCOLLECTIONNAME)
+
+    print(">> Creating collection...")
+
+    # Get existing collection
+    try:
+      self.collection = await self.client.get_collection(name = self.collection_name)
+      print(f"> Collection '{self.collection_name}' has been loaded successfully with {await self.collection.count():,} items.\n")
+
+    # Collection doesn't exist
+    except chromadb.errors.NotFoundError:
+      self.collection = await self.client.create_collection(name = self.collection_name)
+      print(f"> Collection '{self.collection_name}' has been created successfully.\n")
 
   # endregion
 
@@ -581,6 +623,7 @@ async def main():
   # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
   # print("> Embedding function has been created successfully.\n")
   # rag_vectordb = PersistentRagHandler(json_filepath = f'{PROJECT_ROOT}/data/db.json', client_path = f'{PROJECT_ROOT}/output', collection_name = 'data', embedding_function = embedding_function)
+  # rag_vectordb.init()
   # rag_vectordb.load(limit = 250)
   # rag_vectordb.create_vectordb()
 
@@ -592,10 +635,12 @@ async def main():
 
   # # Search "Psicologia" in the vector database
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
+  # rag_search.init()
   # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
 
   # # Init search in terminal mode
   # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
+  # rag_search.init()
   # rag_search.init_search_terminal_mode(n_results = 10)
 
 if __name__ == "__main__":
