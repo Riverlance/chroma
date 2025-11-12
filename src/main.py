@@ -671,6 +671,7 @@ async def main():
   # rag_http_search = await AsyncHttpRagHandler(client_host = 'localhost', client_port = 8000, collection_name = 'data')
   # print(rag_http_search.client)
   # print(rag_http_search.collection)
+  #
 
 
 
