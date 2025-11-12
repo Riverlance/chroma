@@ -365,8 +365,8 @@ class PersistentRagHandler(RagHandler):
     print(f"> Client has been created successfully with path as '{self.client_path}'.\n")
 
   def create_collection(self):
-    assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
-    assert self.collection_name, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTIONNAME)
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.collection_name, RagHandler.error(RAG_ERROR_NOCOLLECTIONNAME)
 
     print(">> Creating collection...")
 
@@ -381,7 +381,7 @@ class PersistentRagHandler(RagHandler):
     Delete the Chroma collection.
     '''
 
-    assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
 
     for collection in self.client.list_collections():
       try:
@@ -394,8 +394,8 @@ class PersistentRagHandler(RagHandler):
     Create a Chroma vector database.
     '''
 
-    assert self.client, PersistentRagHandler.error(RAG_ERROR_NOCLIENT)
-    assert self.collection, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTION)
+    assert self.client, RagHandler.error(RAG_ERROR_NOCLIENT)
+    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
     global VECTORDB_SAVING_PRINT_CYCLETIME
 
@@ -459,7 +459,7 @@ class PersistentRagHandler(RagHandler):
       n_results (int, optional): Number of results.
     '''
 
-    assert self.collection, PersistentRagHandler.error(RAG_ERROR_NOCOLLECTION)
+    assert self.collection, RagHandler.error(RAG_ERROR_NOCOLLECTION)
 
     print(f"\n>> Requested query: \"{query_text}\"")
 
