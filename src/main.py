@@ -67,10 +67,9 @@ class RagHandler(abc.ABC):
     self.collection_name = collection_name
 
     # JSON parsing data
-    self.unique_ids        = [ ]
-    self.metadatas         = [ ]
-    self.documents         = [ ]
-    self.empty_docs_amount = 0
+    self.unique_ids = [ ]
+    self.metadatas  = [ ]
+    self.documents  = [ ]
 
     # Vector database
     self.client     = None
@@ -123,49 +122,35 @@ class RagHandler(abc.ABC):
     # One work around for this, is to force the fallback manually. For example: `obj.get('INSTITUICAO') or ''`.
     # Therefore, if the value is `None`, `''` or another "falsy" value, then `''` will be used instead.
 
-    group_id             = int(obj.get('group_id') or 0)
-    instituicao          = (obj.get('INSTITUICAO') or '').strip()
-    biblioteca           = (obj.get('BIBLIOTECA_NOME') or '').strip()
-    editora              = (obj.get('NOME_EDITORA') or '').strip()
-    area_conhecimento    = (obj.get('AREA_CONHECIMENTO') or '').strip()
-    assuntos_controlados = (obj.get('SPINES') or '').strip()
-    termo_livre          = (obj.get('TERMO_LIVRE') or '').strip()
-
-    # 5 documents per object
-    # Document #1 - 'TITULO_PUBLICACAO'
-    doc_1 = (obj.get('TITULO_PUBLICACAO') or '').strip()
-    # Document #2 - 'TITULO_RELACIONADO'
-    doc_2 = (obj.get('TITULO_RELACIONADO') or '').strip()
-    # Document #4 - 'COMENTARIO'
-    doc_3 = (obj.get('COMENTARIO') or '').strip()
-    # Document #5 - 'CONTEXT' (metadatas as document)
-    doc_4 = f'Instituição: "{instituicao}"; Biblioteca: "{biblioteca}"; Editora: "{editora}"; Área do Conhecimento: "{area_conhecimento}"; Assuntos Controlados: "{assuntos_controlados}"; Termo Livre: "{termo_livre}"; Título da Publicação: "{doc_1}"; Título Relacionado: "{doc_2}"; Comentário: "{doc_3}"'
-
     # Metadatas
     metadatas = {
-      'group_id'          : str(group_id),
       'COD_CCN_PUBLICACAO': (obj.get('COD_CCN_PUBLICACAO') or '').strip(),
+      'TITULO_PUBLICACAO' : (obj.get('TITULO_PUBLICACAO') or '').strip(),
+      'TITULO_RELACIONADO': (obj.get('TITULO_RELACIONADO') or '').strip(),
+      'BIBLIOTECA_NOME'   : (obj.get('BIBLIOTECA_NOME') or '').strip(),
+      'INSTITUICAO'       : (obj.get('INSTITUICAO') or '').strip(),
+      'NOME_EDITORA'      : (obj.get('NOME_EDITORA') or '').strip(),
+      'AREA_CONHECIMENTO' : (obj.get('AREA_CONHECIMENTO') or '').strip(),
+      'SPINES'            : (obj.get('SPINES') or '').strip(),
+      'TERMO_LIVRE'       : (obj.get('TERMO_LIVRE') or '').strip(),
       'COLECAO'           : (obj.get('COLECAO') or '').strip(),
-      'INSTITUICAO'       : instituicao,
-      'BIBLIOTECA_NOME'   : biblioteca,
-      'NOME_EDITORA'      : editora,
-      'AREA_CONHECIMENTO' : area_conhecimento,
-      'SPINES'            : assuntos_controlados,
-      'TERMO_LIVRE'       : termo_livre,
-
-      # Documents also as metadatas (except by the context document)
-      'TITULO_PUBLICACAO' : doc_1,
-      'TITULO_RELACIONADO': doc_2,
-      'COMENTARIO'        : doc_3
+      'COMENTARIO'        : (obj.get('COMENTARIO') or '').strip(),
     }
 
-    # Remove empty documents
-    docs              = [doc_1, doc_2, doc_3, doc_4]
-    docs_amount       = len(docs)
-    filled_docs       = [doc.strip() for doc in docs if doc.strip()]
-    empty_docs_amount = docs_amount - len(filled_docs)
+    # Document
+    doc = f"Código CCN: {metadatas['COD_CCN_PUBLICACAO']}\n\n" \
+          f"Título: {metadatas['TITULO_PUBLICACAO']}\n\n" \
+          f"Título relacionado: {metadatas['TITULO_RELACIONADO']}\n\n" \
+          f"Biblioteca: {metadatas['BIBLIOTECA_NOME']}\n\n" \
+          f"Instituição: {metadatas['INSTITUICAO']}\n\n" \
+          f"Editora: {metadatas['NOME_EDITORA']}\n\n" \
+          f"Área do conhecimento: {metadatas['AREA_CONHECIMENTO']}\n\n" \
+          f"Assuntos controlados: {metadatas['SPINES']}\n\n" \
+          f"Termo livre: {metadatas['TERMO_LIVRE']}\n\n" \
+          f"Coleção: {metadatas['COLECAO']}\n\n" \
+          f"Comentário: {metadatas['COMENTARIO']}"
 
-    return metadatas, empty_docs_amount, *filled_docs
+    return metadatas, doc
 
   def __parse_json_file(self, limit: int = None):
     '''
@@ -181,7 +166,6 @@ class RagHandler(abc.ABC):
     global JSON_PARSING_PRINT_CYCLETIME
 
     parsed_amount = 0
-    unique_id     = 0
     json_info     = self.get_json_file_info()
     time_begin    = time.time()
     time_previous = time_begin # Time of previous batch execution
@@ -204,25 +188,13 @@ class RagHandler(abc.ABC):
       file.seek(0)
 
       for obj in ijson.items(file, prefix = 'item'):
-        parsed_amount    += 1
-        obj['group_id']   = parsed_amount # Id for the group of documents
-        data              = self.__parse_object(obj)
-        data_len          = len(data)
-        unique_ids        = [ ]
-        metadatas         = data[0] if data_len > 0 else { }
-        empty_docs_amount = data[1] if data_len > 1 else 0
-        docs              = data[2:] if data_len > 2 else [ ]
+        parsed_amount += 1 # Used as unique id
+        data          = self.__parse_object(obj)
+        metadatas     = data[0]
+        doc           = data[1]
 
-        # Update empty documents amount
-        self.empty_docs_amount += empty_docs_amount
-
-        # Generate unique ids
-        for _ in range(len(docs)):
-          unique_id += 1
-          unique_ids.append(str(unique_id))
-
-        # Deliver id, metadatas and documents to the caller (generator)
-        yield unique_ids, metadatas, docs
+        # Deliver id, metadatas and document to the caller (generator)
+        yield parsed_amount, metadatas, doc
 
         # Display progress
         time_current = time.time() # Time of current batch execution
@@ -250,12 +222,11 @@ class RagHandler(abc.ABC):
       **k (dict): Keyword arguments.
     '''
 
-    for unique_ids, metadatas, docs in self.__parse_json_file(*a, **k):
-      # Store unique ids, metadatas and documents
-      for id, doc in zip(unique_ids, docs):
-        self.unique_ids.append(id)
-        self.metadatas.append(metadatas)
-        self.documents.append(doc)
+    for id, metadatas, doc in self.__parse_json_file(*a, **k):
+      # Store unique id, metadatas and document
+      self.unique_ids.append(str(id))
+      self.metadatas.append(metadatas)
+      self.documents.append(doc)
 
   def get_json_file_info(self) -> tuple:
     '''
@@ -283,15 +254,13 @@ class RagHandler(abc.ABC):
       **k (dict): Keyword arguments.
     '''
 
-    for unique_ids, metadatas, docs in self.__parse_json_file(*a, **k):
-      print(f">> Found new document of group #{metadatas.get('group_id') or 0}:\n")
+    for id, metadatas, doc in self.__parse_json_file(*a, **k):
+      print(f">> Found new document:\n")
 
       print(f"> Metadatas:\n{metadatas}\n")
+      print(f"> Document #{id}:\n{doc}\n")
 
-      for id, doc in zip(unique_ids, docs):
-        print(f"> Document #{id}\n{doc}\n")
-
-      print('--- ' * 7 + '\n')
+      print('\n' + ('--- ' * 7) + '\n')
 
   # endregion
 
@@ -447,7 +416,7 @@ class PersistentRagHandler(RagHandler):
         print(f"> Saved {saved_amount:,} documents in {time_elapsed} second{'' if time_elapsed < 2 else 's'} ({(progress_ratio * 100):.2f}%).")
 
     # Print last progress
-    print(f"> Saved {saved_amount:,} documents (of {saved_amount + self.empty_docs_amount:,}, ignoring {self.empty_docs_amount:,} empty documents) in {round(time_current - time_begin, 2):,.2f} seconds.\n")
+    print(f"> Saved {saved_amount:,} documents in {round(time_current - time_begin, 2):,.2f} seconds.\n")
 
   # endregion
 
@@ -486,8 +455,8 @@ class PersistentRagHandler(RagHandler):
       for i, (id, metadata, document) in enumerate(zip(ids, metadatas, documents), 1):
         print(f"> Result #{i} - Document #{id}\n")
         print(f"> Metadatas:\n{metadata}\n")
-        print(f"> Document (255 chars only):\n{document[:255]}{'...' if len(document) > 255 else ''}\n")
-        print('--- ' * 7 + '\n')
+        print(f"> Document:\n{document}\n")
+        print('\n' + ('--- ' * 7) + '\n')
 
     # No results found
     else:
