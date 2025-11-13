@@ -15,15 +15,11 @@ venv/
 
 # Data
 *.json
-data/
 
-# Databases
+# Database
 db/
-
-
-
-# Chroma
-# Vector database
 *.sqlite3
+
+# Output
 # Folders inside output
 /output/*/
