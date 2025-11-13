@@ -622,12 +622,18 @@ async def main():
   Search in a vector database
   '''
 
-  # # Search "Psicologia" in the vector database
-  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
-  # rag_search.search(query_text = "Me mostre publicações de psicologia", n_results = 10)
+  # # Search in the vector database
+  # print(">> Creating embedding function...")
+  # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
+  # print("> Embedding function has been created successfully.\n")
+  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data', embedding_function = embedding_function)
+  # rag_search.search(query_text = "Me mostre publicações de psicologia da Universidade Federal de Pernambuco", n_results = 10)
 
   # # Init search in terminal mode
-  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data')
+  # print(">> Creating embedding function...")
+  # embedding_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(model_name = 'paraphrase-multilingual-MiniLM-L12-v2')
+  # print("> Embedding function has been created successfully.\n")
+  # rag_search = PersistentRagHandler(client_path = f'{PROJECT_ROOT}/output', collection_name = 'data', embedding_function = embedding_function)
   # rag_search.init_search_terminal_mode(n_results = 10)
 
 
